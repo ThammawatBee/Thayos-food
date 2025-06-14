@@ -1,25 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Box } from "@chakra-ui/react";
+import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import LoginPage from "./page/LoginPage";
+import YearCalendar from "./component/YearCalendar";
+import CustomerManagement from "./page/CustomerManagementPage";
+import UserManagement from "./page/UserManagementPage";
+import HomePage from "./page/HomePage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box>
+      <ToastContainer />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/customer-management" element={<CustomerManagement />} />
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/calendar" element={<YearCalendar />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/*" element={<HomePage />} />
+      </Routes>
+    </Box>
   );
 }
 
