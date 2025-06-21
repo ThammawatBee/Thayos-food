@@ -4,18 +4,18 @@ import * as Yup from 'yup';
 import { useFormik } from "formik"
 import { toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"
-// import { login } from "../service/jket";
 import { useEffect } from "react";
-// import useAuthStore from "../store/authStore";
+import { login } from "../service/thayos-food";
+import useAuthStore from "../store/authStore";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  // const { getProfile } = useAuthStore()
+  const { getProfile } = useAuthStore()
 
   const checkAuth = async () => {
     try {
-      // await getProfile()
-      navigate("/upload")
+      await getProfile()
+      navigate("/")
     } catch (err) {
       navigate('/login', { replace: true })
     }
@@ -30,21 +30,21 @@ const LoginPage = () => {
 
   const formik = useFormik({
     initialValues: {
-      username: '',
+      userCode: '',
       password: '',
     },
     validationSchema: Yup.object({
-      username: Yup.string().required('Username is required.'),
+      userCode: Yup.string().required('User Code is required.'),
       password: Yup.string().required('Password is required.'),
     }),
     onSubmit: async (value) => {
       try {
-        // const response = await login({
-        //   ...value,
-        // })
-        // localStorage.setItem('accessToken', response.access_token)
+        const response = await login({
+          ...value,
+        })
+        localStorage.setItem('accessToken', response.access_token)
         // localStorage.setItem('expiresAt', response.expiresAt.toString())
-        navigate("/upload")
+        navigate("/")
         toast.success("Login success", {
           style: { color: '#18181B' },
           position: "top-right",
@@ -79,10 +79,10 @@ const LoginPage = () => {
           <img src={Logo} style={{ height: "125px", width: "125px" }} />
         </Box> */}
 
-        <Field.Root marginTop={"25px"} invalid={!!formik.touched.username && !!formik.errors.username}>
-          <Field.Label>Username</Field.Label>
-          <Input value={formik?.values?.username} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("username", e.currentTarget.value) }} />
-          <Field.ErrorText>{formik.errors.username}</Field.ErrorText>
+        <Field.Root marginTop={"25px"} invalid={!!formik.touched.userCode && !!formik.errors.userCode}>
+          <Field.Label>User Code</Field.Label>
+          <Input value={formik?.values?.userCode} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("userCode", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.userCode}</Field.ErrorText>
         </Field.Root>
         <Field.Root marginTop={"25px"} invalid={!!formik.touched.password && !!formik.errors.password}>
           <Field.Label>Password</Field.Label>

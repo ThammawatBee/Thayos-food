@@ -53,7 +53,7 @@ const HomePage = () => {
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Set up Calendar</Text>
         </Box>
         <Box marginRight={"50px"}>
-          <Link to="/inspection">
+          <Link to="/user-management">
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >

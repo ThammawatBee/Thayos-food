@@ -20,6 +20,16 @@ export default function YearCalendar({ year = 2025 }) {
     }
     return dates;
   }
+  const getDateColor = (isCurrentMonth: boolean, isInTask: boolean) => {
+    if (isCurrentMonth && isInTask) {
+      return '#ffffff'
+    }
+    if (isCurrentMonth) {
+      return 'black'
+    }
+    return '#9B9A9A'
+  }
+
   return (
     <div>
       <div>
@@ -40,7 +50,8 @@ export default function YearCalendar({ year = 2025 }) {
                 <Box
                   key={index}
                   padding={'1px'}
-                  color={isCurrentMonth ? 'black' : '#9B9A9A'}
+                  color={getDateColor(isCurrentMonth, isInTask)}
+                  backgroundColor={isCurrentMonth && isInTask ? '#3944BC' : ''}
                 >
                   {day}
                 </Box>
