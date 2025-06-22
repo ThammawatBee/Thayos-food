@@ -103,7 +103,6 @@ const UserDialog = ({ isOpenDialog, setOpenDialog, user }: UserDialogProps) => {
       })
     }
   }, [user])
-  console.log('formik.errors', formik.errors)
   return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"}
     onExitComplete={() => {
       formik.resetForm()

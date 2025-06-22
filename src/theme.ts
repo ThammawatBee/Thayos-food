@@ -9,17 +9,16 @@ const config = defineConfig({
     tokens: {
       colors: {
         brand: {
-          50: { value: "#fafafa" },
-          100: { value: "#e6e4e4" },
-          200: { value: "#ccc9c9" },
-          300: { value: "#b3aeae" },
-          400: { value: "#999393" },
-          500: { value: "#807979" },
-          600: { value: "#666060" },
-          700: { value: "#4d4747" },
-          800: { value: "#3f3939" },
-          900: { value: "#373535" },
-          950: { value: "#1c1b1b" },
+          50: { value: "#ffffff" },
+          100: { value: "#ffffff" },
+          200: { value: "#9faeea" },
+          300: { value: "#7a8fe0" },
+          400: { value: "#566fd7" },
+          500: { value: "#3c56bd" },
+          600: { value: "#2B3E8F" },
+          700: { value: "#243574" },
+          800: { value: "#1c2b5a" },
+          900: { value: "#141f3f" },
         },
       },
     },
@@ -39,6 +38,6 @@ const config = defineConfig({
   },
 })
 
-const theme = createSystem(defaultConfig)
+const theme = createSystem(defaultConfig,config)
 
 export default theme;

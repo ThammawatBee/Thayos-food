@@ -31,7 +31,7 @@ const UserManagement = () => {
     <AppBar />
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
       <Text marginBottom={"20px"} textStyle={'xl'} color={'#1A69AA'} fontWeight='bold'>User Management</Text>
-      <Box mt="10px" display="flex" mb="15px" justifyContent='space-between' alignItems='end'>
+      <Box mt="10px" display="flex" mb="35px" justifyContent='space-between' alignItems='end'>
         <Field.Root width="30%">
           <Field.Label>User ID/Name</Field.Label>
           <Input
@@ -44,7 +44,6 @@ const UserManagement = () => {
           fetchUsers({ reset: true })
         }}>Search</Button>
       </Box>
-      <Box marginTop="20px" />
       <Table.Root size="md">
         <Table.Header>
           <Table.Row background={"#F9FAFB"}>

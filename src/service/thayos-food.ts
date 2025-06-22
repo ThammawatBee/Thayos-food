@@ -1,6 +1,7 @@
 import { LoginPayload, Profile } from "../interface/auth"
 import axiosInstance from "./axios"
 import { CreateUser, EditUser, ListUserOptions, User } from "../interface/user"
+import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../interface/customer"
 
 export const login = async (payload: LoginPayload) => {
   const response = await axiosInstance.post('/auth/login', { ...payload })
@@ -25,4 +26,24 @@ export const createUser = async (data: CreateUser) => {
 export const editUser = async (id: string, data: EditUser) => {
   const response = await axiosInstance.patch(`/users/${id}`, { ...data });
   return response as unknown as { user: User };
+}
+
+export const listCustomers = async (options: ListCustomerOptions) => {
+  const response = await axiosInstance.get(`/customers`, { params: options });
+  return response as unknown as { customers: Customer[], count: number };
+}
+
+export const createCustomer = async (data: CreateCustomer) => {
+  const response = await axiosInstance.post(`/customers`, { ...data });
+  return response as unknown as { customers: Customer[], count: number };
+}
+
+export const editCustomer = async (id: string, data: EditCustomer) => {
+  const response = await axiosInstance.patch(`/customers/${id}`, { ...data });
+  return response as unknown as { customer: Customer };
+}
+
+export const listHolidays = async (year: string) => {
+  const response = await axiosInstance.get(`/holidays`, { params: { year } });
+  return response as unknown as { customer: Customer };
 }

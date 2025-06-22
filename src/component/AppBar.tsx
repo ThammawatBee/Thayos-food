@@ -7,10 +7,10 @@ const AppBar = () => {
   const location = useLocation();
   const renderTabText = (pathname: string, text: string) => {
     // eslint-disable-next-line react/jsx-no-undef
-    return <Box bg={location.pathname === pathname ? '#1A69AA' : '#373535'} p={'4'}><Text fontWeight={location.pathname === pathname ? 'bold' : 'normal'}>{text}</Text></Box>
+    return <Box bg={location.pathname === pathname ? '#1A69AA' : '#2B3E8F'} p={'4'}><Text fontWeight={location.pathname === pathname ? 'bold' : 'normal'}>{text}</Text></Box>
   }
   // const { profile } = useAuthStore()
-  return <Box bg='#373535' width="100%" color="white" display='flex' alignItems='center'>
+  return <Box bg='#2B3E8F' width="100%" color="white" display='flex' alignItems='center'>
     {/* <img src={AppBarLogo} style={{ height: "55px", width: "125px" }} /> */}
     <Box marginRight='20px'>
       <Link to="/monitoring-status">{renderTabText('/monitoring-status', 'Monitoring Status')}</Link>

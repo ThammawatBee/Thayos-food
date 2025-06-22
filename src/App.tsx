@@ -7,6 +7,7 @@ import UserManagement from "./page/UserManagementPage";
 import HomePage from "./page/HomePage";
 import PrivateRoute from "./layout/PrivateRoute";
 import CalendarPage from "./page/CalendarPage";
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   return (
