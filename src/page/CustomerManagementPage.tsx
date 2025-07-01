@@ -7,6 +7,8 @@ import { Customer } from "../interface/customer"
 import PageSizeSelect from "../component/PageSizeSelect"
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
 import CustomerDialog from "../component/CustomerDialog"
+import { FaRegTrashAlt } from "react-icons/fa"
+import DeleteCustomerDialog from "../component/DeleteCustomerDialog"
 
 const CustomerManagement = () => {
   const { customers, limit, onPageSizeChange, onPageChange, offset, count, search, setSearch, fetchCustomers } = useCustomerStore()
@@ -17,6 +19,7 @@ const CustomerManagement = () => {
   }, [])
 
   const [openModal, setOpenModal] = useState(false)
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [editCustomer, setEditCustomer] = useState<Customer | null>(null)
   return <Box>
     <AppBar />
@@ -46,6 +49,7 @@ const CustomerManagement = () => {
             <Table.ColumnHeader>เบอร์ติดต่อ</Table.ColumnHeader>
             <Table.ColumnHeader>E-mail</Table.ColumnHeader>
             <Table.ColumnHeader></Table.ColumnHeader>
+            <Table.ColumnHeader></Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -69,6 +73,17 @@ const CustomerManagement = () => {
                     }}
                   >
                     <FiEdit />
+                  </IconButton></Table.Cell>
+                <Table.Cell>
+                  <IconButton
+                    variant="outline"
+                    size={"sm"}
+                    onClick={() => {
+                      setEditCustomer(customer)
+                      setOpenDeleteModal(true)
+                    }}
+                  >
+                    <FaRegTrashAlt />
                   </IconButton></Table.Cell>
               </Table.Row>
             ) : null
@@ -120,6 +135,7 @@ const CustomerManagement = () => {
         <Button background={'#385723'} onClick={() => setOpenModal(true)}>Add new Customer</Button>
       </Box>
     </Box>
+    <DeleteCustomerDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} customer={editCustomer} />
     <CustomerDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} customer={editCustomer} />
   </Box>
 }

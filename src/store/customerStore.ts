@@ -1,4 +1,4 @@
-import { createCustomer, editCustomer, listCustomers } from "../service/thayos-food";
+import { createCustomer, deleteCustomer, editCustomer, listCustomers } from "../service/thayos-food";
 import { CreateCustomer, EditCustomer, Customer } from "../interface/customer"
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware'
@@ -22,6 +22,7 @@ interface CustomerState {
   setSearch: (input: CustomerSearch) => void
   createCustomer: (payload: CreateCustomer) => Promise<void>
   editCustomer: (id: string, payload: EditCustomer) => Promise<void>
+  deleteCustomer: (id: string) => Promise<void>
 }
 
 const useCustomerStore = create<CustomerState>()(
@@ -58,13 +59,13 @@ const useCustomerStore = create<CustomerState>()(
       }
     },
     onPageChange: async (page: number) => {
-      const users = get().customers
+      const customers = get().customers
       const limit = get().limit
       const count = get().count
       const fetchCustomers = get().fetchCustomers
-      if (users) {
-        if (users?.length < page * limit && users?.length < count) {
-          await fetchCustomers({ offset: users.length, changePage: true, limit: (page * limit) - users?.length })
+      if (customers) {
+        if (customers?.length < page * limit && customers?.length < count) {
+          await fetchCustomers({ offset: customers.length, changePage: true, limit: (page * limit) - customers?.length })
           set({ offset: page - 1 })
         }
         else {
@@ -108,6 +109,15 @@ const useCustomerStore = create<CustomerState>()(
         throw error
       }
     },
+    deleteCustomer: async (id: string) => {
+      const { limit } = get()
+      await deleteCustomer(id)
+      const response = await listCustomers({
+        limit,
+        offset: 0,
+      });
+      set({ customers: response.customers, count: response.count, offset: 0, search: {} });
+    }
   }))
 )
 

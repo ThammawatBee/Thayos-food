@@ -8,6 +8,7 @@ import HomePage from "./page/HomePage";
 import PrivateRoute from "./layout/PrivateRoute";
 import CalendarPage from "./page/CalendarPage";
 import "react-datepicker/dist/react-datepicker.css";
+import OrderPage from "./page/OrderPage";
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
         <Route path="/calendar" element={
           <PrivateRoute>
             <CalendarPage />
+          </PrivateRoute>} />
+        <Route path="/order" element={
+          <PrivateRoute>
+            <OrderPage />
           </PrivateRoute>} />
         <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
         <Route path="/*" element={<LoginPage />} />

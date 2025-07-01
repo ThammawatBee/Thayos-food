@@ -1,4 +1,4 @@
-import { createUser, editUser, listUsers } from "../service/thayos-food";
+import { createUser, deleteUser, editUser, listUsers } from "../service/thayos-food";
 import { CreateUser, EditUser, User } from "../interface/user"
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware'
@@ -22,6 +22,7 @@ interface UserState {
   setSearch: (input: UserSearch) => void
   createUser: (payload: CreateUser) => Promise<void>
   editUser: (id: string, payload: EditUser) => Promise<void>
+  deleteUser: (id: string) => Promise<void>
 }
 
 const useUserStore = create<UserState>()(
@@ -109,6 +110,16 @@ const useUserStore = create<UserState>()(
         throw error
       }
     },
+    deleteUser: async (id: string) => {
+      const { limit } = get()
+      await deleteUser(id)
+      const response = await listUsers({
+        limit,
+        offset: 0,
+      });
+      set({ users: response.users, count: response.count, offset: 0, search: {} });
+
+    }
   }))
 )
 

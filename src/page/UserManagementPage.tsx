@@ -10,6 +10,8 @@ import UserDialog from "../component/UserDialog"
 import { FiEdit } from "react-icons/fi";
 import { User } from "../interface/user"
 import upperFirst from "lodash/upperFirst"
+import DeleteUserDialog from "../component/DeleteUserDialog"
+import { FaRegTrashAlt } from "react-icons/fa"
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const UserManagement = () => {
   const { profile } = useAuthStore()
   const [openModal, setOpenModal] = useState(false)
   const [editUser, setEditUser] = useState<User | null>(null)
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
   useEffect(() => {
     if (!users) {
       fetchUsers()
@@ -51,6 +54,7 @@ const UserManagement = () => {
             <Table.ColumnHeader>ชื่อ</Table.ColumnHeader>
             <Table.ColumnHeader>สิทธิการเข้าถึง</Table.ColumnHeader>
             <Table.ColumnHeader></Table.ColumnHeader>
+            <Table.ColumnHeader></Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -71,6 +75,18 @@ const UserManagement = () => {
                   >
                     <FiEdit />
                   </IconButton></Table.Cell>
+                <Table.Cell>
+                  {profile?.id !== user.id ? <IconButton
+                    variant="outline"
+                    size={"sm"}
+                    onClick={() => {
+                      setEditUser(user)
+                      setOpenDeleteModal(true)
+                    }}
+                  >
+                    <FaRegTrashAlt />
+                  </IconButton> : null}
+                </Table.Cell>
               </Table.Row>
             ) : null
           }
@@ -121,7 +137,8 @@ const UserManagement = () => {
         <Button background={'#385723'} onClick={() => setOpenModal(true)}>Add new User</Button>
       </Box>
     </Box>
-    <UserDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} user={editUser} />
+    <UserDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} user={editUser} />
+    <DeleteUserDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} user={editUser} />
   </Box>
 }
 

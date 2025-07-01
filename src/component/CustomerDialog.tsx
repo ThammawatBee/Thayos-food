@@ -8,6 +8,7 @@ import SuccessToast from "./SuccessToast";
 import { toast } from "react-toastify";
 import { ServiceError } from "@/interface/Error";
 import { useEffect } from "react";
+import { generateDate } from "../utils/generateTime";
 
 interface CustomerDialogProps {
   isOpenDialog: boolean
@@ -45,8 +46,8 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
       mobileNumber: Yup.string().required('Mobile Number is required.').matches(/^0[689]\d{8}$/, 'Invalid phone number'),
       email: Yup.string().required('Email is required').email('Invalid email format'),
       deliveryTime: Yup.string().required('Delivery time is required.'),
-      latitude: Yup.string().required('Latitude is required.').matches(/^\d*\.?\d*$/, 'Latitude must contain digits only'),
-      longitude: Yup.string().required('Longitude is required.').matches(/^\d*\.?\d*$/, 'Longitude number must contain digits only'),
+      latitude: Yup.string().optional().matches(/^\d*\.?\d*$/, 'Latitude must contain digits only'),
+      longitude: Yup.string().optional().matches(/^\d*\.?\d*$/, 'Longitude number must contain digits only'),
     }),
     onSubmit: async (value) => {
       if (customer) {
@@ -113,14 +114,6 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
     },
   })
 
-  const generateDate = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-
-    const now = new Date();
-    const dateWithTime = new Date(now);
-    dateWithTime.setHours(hours, minutes, 0, 0);
-    return dateWithTime
-  }
 
   useEffect(() => {
     if (customer) {

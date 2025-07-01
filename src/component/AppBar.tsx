@@ -1,3 +1,4 @@
+import useAuthStore from '../store/authStore';
 import { Box, Text } from '@chakra-ui/react';
 import { Link, useLocation } from "react-router-dom"
 // import AppBarLogo from '../assets/image/AppBar-logo.jpg'
@@ -5,6 +6,7 @@ import { Link, useLocation } from "react-router-dom"
 
 const AppBar = () => {
   const location = useLocation();
+  const { profile } = useAuthStore()
   const renderTabText = (pathname: string, text: string) => {
     // eslint-disable-next-line react/jsx-no-undef
     return <Box bg={location.pathname === pathname ? '#1A69AA' : '#2B3E8F'} p={'4'}><Text fontWeight={location.pathname === pathname ? 'bold' : 'normal'}>{text}</Text></Box>
@@ -16,14 +18,14 @@ const AppBar = () => {
       <Link to="/monitoring-status">{renderTabText('/monitoring-status', 'Monitoring Status')}</Link>
     </Box>
     <Box marginRight='20px'>
-      <Link to="/update-order">{renderTabText('/update-order', 'Update Order')}</Link>
+      <Link to="/order">{renderTabText('/order', 'Update Order')}</Link>
     </Box>
     <Box marginRight='20px'>
       <Link to="/customer-management">{renderTabText('/customer-management', 'Customer Management')}</Link>
     </Box>
-    <Box marginRight='20px'>
+    {profile && profile.role === 'admin' ? <Box marginRight='20px'>
       <Link to="/user-management">{renderTabText('/user-management', 'User Management')}</Link>
-    </Box>
+    </Box> : null}
     <Box marginRight='20px'>
       <Link to="/calendar">{renderTabText('/calendar', 'Calendar')}</Link>
     </Box>

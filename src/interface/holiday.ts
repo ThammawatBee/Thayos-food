@@ -1,3 +1,3 @@
-export type holiday = {
+export type Holiday = {
   date: string
 }
