@@ -2,6 +2,12 @@ import useAuthStore from "../store/authStore";
 import AppBar from "../component/AppBar";
 import { Box, Text } from "@chakra-ui/react"
 import { Link } from "react-router-dom";
+import CalendarImage from '../assests/image/calendar.png'
+import CustomerImage from '../assests/image/customermanagement.jpg'
+import Cart from '../assests/image/cart.png'
+import History from '../assests/image/history.jpg'
+import Monitoring from '../assests/image/monitoring-icon.jpg'
+import User from '../assests/image/user-management.jpg'
 
 const HomePage = () => {
   const { profile } = useAuthStore()
@@ -17,7 +23,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Equipment} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={Monitoring} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Monitoring Status</Text>
@@ -27,7 +33,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Inspection} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={Cart} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Update Order</Text>
@@ -37,7 +43,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Report} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={CustomerImage} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Customer Management</Text>
@@ -49,7 +55,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Equipment} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={CalendarImage} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Set up Calendar</Text>
@@ -59,7 +65,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Inspection} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={User} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>User Management</Text>
@@ -69,7 +75,7 @@ const HomePage = () => {
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
-              {/* <img src={Report} style={{ width: '160xp', height: '160px' }} /> */}
+              <img src={History} style={{ width: '160xp', height: '160px' }} />
             </Box>
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>History</Text>
