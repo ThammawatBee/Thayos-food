@@ -20,6 +20,7 @@ const UserManagement = () => {
   const [openModal, setOpenModal] = useState(false)
   const [editUser, setEditUser] = useState<User | null>(null)
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
+  const [deleteUser, setDeleteUser] = useState<User | null>(null)
   useEffect(() => {
     if (!users) {
       fetchUsers()
@@ -80,7 +81,7 @@ const UserManagement = () => {
                     variant="outline"
                     size={"sm"}
                     onClick={() => {
-                      setEditUser(user)
+                      setDeleteUser(user)
                       setOpenDeleteModal(true)
                     }}
                   >
@@ -138,7 +139,7 @@ const UserManagement = () => {
       </Box>
     </Box>
     <UserDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} user={editUser} />
-    <DeleteUserDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} user={editUser} />
+    <DeleteUserDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} user={deleteUser} />
   </Box>
 }
 
