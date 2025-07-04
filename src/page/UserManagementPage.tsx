@@ -138,8 +138,8 @@ const UserManagement = () => {
         <Button background={'#385723'} onClick={() => setOpenModal(true)}>Add new User</Button>
       </Box>
     </Box>
-    <UserDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} user={editUser} />
-    <DeleteUserDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} user={deleteUser} />
+    <UserDialog isOpenDialog={openModal} setOpenDialog={setOpenDeleteModal} user={editUser} />
+    <DeleteUserDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenModal} user={deleteUser} />
   </Box>
 }
 
