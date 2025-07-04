@@ -259,9 +259,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
               </Box>
             </Dialog.Body>
             <Dialog.Footer>
-              <Dialog.ActionTrigger>
-                <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              </Dialog.ActionTrigger>
+              <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
               <Button type="submit">Save</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger onClick={() => setOpenDialog(false)}>
