@@ -151,12 +151,10 @@ const UserDialog = ({ isOpenDialog, setOpenDialog, user }: UserDialogProps) => {
               </Field.Root>
             </Dialog.Body>
             <Dialog.Footer>
-              <Dialog.ActionTrigger>
-                <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              </Dialog.ActionTrigger>
+              <Button variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
               <Button type="submit">Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger onClick={() => setOpenDialog(false)}>
+            <Dialog.CloseTrigger type="button" onClick={() => setOpenDialog(false)}>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </form>
