@@ -21,6 +21,7 @@ const CustomerManagement = () => {
   const [openModal, setOpenModal] = useState(false)
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [editCustomer, setEditCustomer] = useState<Customer | null>(null)
+  const [deleteCustomer, setDeleteCustomer] = useState<Customer | null>(null)
   return <Box>
     <AppBar />
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
@@ -79,7 +80,7 @@ const CustomerManagement = () => {
                     variant="outline"
                     size={"sm"}
                     onClick={() => {
-                      setEditCustomer(customer)
+                      setDeleteCustomer(customer)
                       setOpenDeleteModal(true)
                     }}
                   >
@@ -135,7 +136,7 @@ const CustomerManagement = () => {
         <Button background={'#385723'} onClick={() => setOpenModal(true)}>Add new Customer</Button>
       </Box>
     </Box>
-    <DeleteCustomerDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} customer={editCustomer} />
+    <DeleteCustomerDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} customer={deleteCustomer} />
     <CustomerDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} customer={editCustomer} />
   </Box>
 }
