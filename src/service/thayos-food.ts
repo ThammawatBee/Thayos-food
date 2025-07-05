@@ -3,6 +3,7 @@ import axiosInstance from "./axios"
 import { CreateUser, EditUser, ListUserOptions, User } from "../interface/user"
 import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../interface/customer"
 import { Holiday } from "../interface/holiday"
+import { Order, OrderPayload } from "../interface/order"
 
 export const login = async (payload: LoginPayload) => {
   const response = await axiosInstance.post('/auth/login', { ...payload })
@@ -62,4 +63,26 @@ export const listHolidays = async (year: string) => {
 export const updateHolidays = async (addHolidays: string[], deleteHolidays: string[]) => {
   const response = await axiosInstance.patch(`/holidays`, { addHolidays, deleteHolidays });
   return response as unknown
+}
+
+export const createOrder = async (orderPayload: OrderPayload) => {
+  const response = await axiosInstance.post(`/orders`, { ...orderPayload });
+  return response as unknown as { order: Order };
+}
+
+export const uploadOrderSlip = async (orderId: string, file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await axiosInstance.post(`/orders/${orderId}/upload-slip`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
+
+export const downloadOrderSlip = async (orderId: string) => {
+  const res = await axiosInstance.get(`/orders/${orderId}/image`, {
+    responseType: 'blob',
+  })
+  return res
 }

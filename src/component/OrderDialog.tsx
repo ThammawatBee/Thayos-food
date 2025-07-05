@@ -1,7 +1,6 @@
 import { Box, Button, ButtonGroup, Checkbox, CloseButton, Dialog, Field, IconButton, Input, NativeSelect, Pagination, Portal, Table, Text, FileUpload } from "@chakra-ui/react"
 import { useFormik } from "formik"
 import * as Yup from 'yup';
-import values from 'lodash/values'
 import { useEffect, useState } from "react";
 import { listCustomers } from "../service/thayos-food";
 import { Customer } from "../interface/customer";
@@ -10,6 +9,8 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import pickBy from "lodash/pickBy";
 import DatePicker from "react-datepicker";
 import { generateDate } from "../utils/generateTime";
+import useOrderStore from "../store/orderStore";
+import { DateTime } from 'luxon';
 
 interface OrderDialogProps {
   isOpenDialog: boolean
@@ -26,6 +27,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const [limit, setLimit] = useState(10)
   const [offset, setOffset] = useState(0)
   const [formStep, setFromStep] = useState(0)
+  const { createOrder } = useOrderStore()
 
   const validateSchema = [Yup.object({
     type: Yup.string().required('Order type is required.'),
@@ -193,7 +195,28 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         setFromStep(1)
       }
       else {
-        console.log('work here')
+        const startDate = value.startDate ? DateTime.fromJSDate(value.startDate).toISODate() : ''
+        const endDate = value.endDate ? DateTime.fromJSDate(value.endDate).toISODate() : ''
+        const file = value.slip as File | null
+        createOrder({
+          type: value.type,
+          preferBreakfast: value.preferBreakfast,
+          preferLunch: value.preferLunch,
+          preferDinner: value.preferDinner,
+          breakfastCount: +value.breakfastCount,
+          lunchCount: +value.lunchCount,
+          dinnerCount: +value.dinnerCount,
+          deliveryTime: value.deliveryTime,
+          deliveryOn: value.deliveryOn,
+          startDate: startDate,
+          endDate: endDate,
+          customerType: value.customerType,
+          total: +value.total,
+          promotion: value.promotion,
+          paymentType: value.paymentType,
+          customerId: selectedCustomer?.id || '',
+        }, file)
+
       }
     },
   })

@@ -101,7 +101,7 @@ const useCustomerStore = create<CustomerState>()(
     },
     editCustomer: async (id: string, customer: EditCustomer) => {
       try {
-        const { customers } = get()
+        const { customers, } = get()
         const result = await editCustomer(id, customer)
         const updateCustomer = result.customer
         set({ customers: customers?.map(customer => customer.id === updateCustomer.id ? { ...customer, ...updateCustomer } : customer) });
