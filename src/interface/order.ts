@@ -51,3 +51,9 @@ export type Order = {
   total: number
   promotion: string
 }
+
+export type OrderItem = {
+  id: string;
+  type: string;
+  deliveryAt: string;
+}

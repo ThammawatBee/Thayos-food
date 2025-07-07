@@ -55,6 +55,7 @@ export default function YearCalendar({ year = 2025, dateTasks, onClickDate, high
               ))}
               {getMonthDates(month).map(({ day, isCurrentMonth, isInTask, date }, index) => (
                 <Box
+                  borderRadius='1.5px'
                   key={index}
                   padding={'1px'}
                   color={getDateColor(isCurrentMonth, isInTask)}

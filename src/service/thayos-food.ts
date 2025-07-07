@@ -3,7 +3,8 @@ import axiosInstance from "./axios"
 import { CreateUser, EditUser, ListUserOptions, User } from "../interface/user"
 import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../interface/customer"
 import { Holiday } from "../interface/holiday"
-import { Order, OrderPayload } from "../interface/order"
+import { Order, OrderItem, OrderPayload } from "../interface/order"
+import { ListPaymentOptions, Payment } from "../interface/payment"
 
 export const login = async (payload: LoginPayload) => {
   const response = await axiosInstance.post('/auth/login', { ...payload })
@@ -85,4 +86,16 @@ export const downloadOrderSlip = async (orderId: string) => {
     responseType: 'blob',
   })
   return res
+}
+
+export const listCustomerOrderItem = async (customerId: string, year: string) => {
+  const res = await axiosInstance.get(`/customers/${customerId}/order-items`, {
+    params: { year }
+  })
+  return res as unknown as { orderItems: OrderItem[] };
+}
+
+export const listPayments = async (options: ListPaymentOptions) => {
+  const response = await axiosInstance.get(`/orders/payment`, { params: options });
+  return response as unknown as { payments: Payment[], count: number };
 }

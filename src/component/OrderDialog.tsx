@@ -11,6 +11,7 @@ import DatePicker from "react-datepicker";
 import { generateDate } from "../utils/generateTime";
 import useOrderStore from "../store/orderStore";
 import { DateTime } from 'luxon';
+import SuccessToast from "./SuccessToast";
 
 interface OrderDialogProps {
   isOpenDialog: boolean
@@ -99,7 +100,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         otherwise: schema => schema.notRequired(),
       }),
     slip: Yup.mixed().required('Slip is required'),
-    total: Yup.number().required('Total is required'),
+    total: Yup.number().required('Total is required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
     promotion: Yup.string().required('Promotion type is required.'),
     promotionInput: Yup.string()
       .when('paymentType', {
@@ -198,7 +199,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         const startDate = value.startDate ? DateTime.fromJSDate(value.startDate).toISODate() : ''
         const endDate = value.endDate ? DateTime.fromJSDate(value.endDate).toISODate() : ''
         const file = value.slip as File | null
-        createOrder({
+        await createOrder({
           type: value.type,
           preferBreakfast: value.preferBreakfast,
           preferLunch: value.preferLunch,
@@ -212,11 +213,16 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           endDate: endDate,
           customerType: value.customerType,
           total: +value.total,
-          promotion: value.promotion,
-          paymentType: value.paymentType,
+          promotion: value.promotion === 'OTHER' ? value.promotionInput : value.promotion,
+          paymentType: value.paymentType === 'OTHER' ? value.paymentTypeInput : value.paymentType,
           customerId: selectedCustomer?.id || '',
         }, file)
 
+        SuccessToast("Create order success")
+        setOpenDialog(false)
+        formik.resetForm()
+        setMode('customer')
+        setSelectedCustomer(null)
       }
     },
   })
@@ -435,10 +441,6 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
               isClearable
               onChange={(dates) => {
                 const [start, end] = dates
-                // setSearch({
-                //   dateStart: start,
-                //   dateEnd: end
-                // })
                 formik.setFieldValue("startDate", start)
                 formik.setFieldValue("endDate", end)
               }}
@@ -531,7 +533,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         <Field.Label>Customer Name</Field.Label>
         <Input disabled value={selectedCustomer?.name} />
       </Field.Root>
-      <Field.Root marginBottom="15px">
+      <Field.Root marginBottom="15px" invalid={!!formik.touched.customerType && !!formik.errors.customerType}>
         <Field.Label>Customer Type</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field
@@ -547,6 +549,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
+        <Field.ErrorText>{formik.errors.customerType}</Field.ErrorText>
       </Field.Root>
       {formik.values.customerType === 'OTHER' &&
         <Field.Root marginBottom="15px" invalid={!!formik.touched.customerTypeInput && !!formik.errors.customerTypeInput}>
@@ -554,7 +557,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           <Input value={formik?.values?.customerTypeInput} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("customerTypeInput", e.currentTarget.value) }} />
           <Field.ErrorText>{formik.errors.customerTypeInput}</Field.ErrorText>
         </Field.Root>}
-      <Field.Root marginBottom="15px">
+      <Field.Root marginBottom="15px" invalid={!!formik.touched.paymentType && !!formik.errors.paymentType}>
         <Field.Label>Payment Type</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field
@@ -571,6 +574,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
+        <Field.ErrorText>{formik.errors.paymentType}</Field.ErrorText>
       </Field.Root>
       {formik.values.paymentType === 'OTHER' &&
         <Field.Root marginBottom="15px" invalid={!!formik.touched.paymentTypeInput && !!formik.errors.paymentTypeInput}>
@@ -583,7 +587,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         <Input type="number" value={formik?.values?.total} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("total", e.currentTarget.value) }} />
         <Field.ErrorText>{formik.errors.total}</Field.ErrorText>
       </Field.Root>
-      <Field.Root marginBottom="15px">
+      <Field.Root marginBottom="15px" invalid={!!formik.touched.slip && !!formik.errors.slip}>
         <Field.Label>Slip</Field.Label>
         <FileUpload.Root maxFiles={1} onFileChange={async (file) => {
           if (file.acceptedFiles?.length) {
@@ -606,8 +610,9 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             />
           </FileUpload.Item>}
         </FileUpload.Root>
+        <Field.ErrorText>{formik.errors.slip}</Field.ErrorText>
       </Field.Root>
-      <Field.Root marginBottom="15px">
+      <Field.Root marginBottom="15px" invalid={!!formik.touched.promotion && !!formik.errors.promotion}>
         <Field.Label>Promotion</Field.Label>
         <NativeSelect.Root>
           <NativeSelect.Field
@@ -624,6 +629,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
+        <Field.ErrorText>{formik.errors.promotion}</Field.ErrorText>
       </Field.Root>
       {formik.values.promotion === 'OTHER' &&
         <Field.Root marginBottom="15px" invalid={!!formik.touched.promotionInput && !!formik.errors.promotionInput}>
@@ -637,6 +643,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const renderContent = () => {
     return mode === 'customer' ? CustomerContent() : FormContent()
   }
+  console.log('formik.errors', formik.errors)
 
   return <Dialog.Root lazyMount open={isOpenDialog} size="xl"
     onExitComplete={() => {
@@ -666,7 +673,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
                   }
                 }}>Back</Button>
             </Dialog.ActionTrigger>
-            <Button onClick={() => formik.handleSubmit()}>{formStep === 0 ? 'Save' : 'Submit'}</Button>
+            <Button onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
           </Dialog.Footer> : null}
           <Dialog.CloseTrigger onClick={() => {
             setOpenDialog(false)

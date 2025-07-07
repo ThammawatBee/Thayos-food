@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import { useEffect } from "react";
 import { login } from "../service/thayos-food";
 import useAuthStore from "../store/authStore";
+import Logo from '../assests/image/logo.jpg'
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -75,10 +76,9 @@ const LoginPage = () => {
   return <Box height={'90vh'} display='flex' alignItems='center' justifyContent='center'>
     <form onSubmit={formik.handleSubmit}>
       <Box shadow={'0 4px 6px -1px rgba(0, 0, 0, .1), 0 2px 4px -2px rgba(0, 0, 8, .1)'} width="400px" padding="20px" border={"1px solid #ECECEC"} borderRadius="10px">
-        {/* <Box display={'flex'} justifyContent={'center'}>
-          <img src={Logo} style={{ height: "125px", width: "125px" }} />
-        </Box> */}
-
+        <Box display={'flex'} justifyContent={'center'}>
+          <img src={Logo} style={{ height: "125px", width: "125px" }} alt="logo"/>
+        </Box>
         <Field.Root marginTop={"25px"} invalid={!!formik.touched.userCode && !!formik.errors.userCode}>
           <Field.Label>User Code</Field.Label>
           <Input value={formik?.values?.userCode} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("userCode", e.currentTarget.value) }} />
