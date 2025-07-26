@@ -136,8 +136,8 @@ const CustomerManagement = () => {
         <Button background={'#385723'} onClick={() => setOpenModal(true)}>Add new Customer</Button>
       </Box>
     </Box>
-    <DeleteCustomerDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} customer={deleteCustomer} />
-    <CustomerDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} customer={editCustomer} />
+    <DeleteCustomerDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} customer={deleteCustomer} resetUser={() => { setDeleteCustomer(null) }} />
+    <CustomerDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} customer={editCustomer} resetCustomer={() => { setEditCustomer(null) }} />
   </Box>
 }
 

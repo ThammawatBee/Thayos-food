@@ -14,6 +14,9 @@ export type Customer = {
   preferBreakfast: boolean
   preferLunch: boolean
   preferDinner: boolean
+  preferBreakfastSnack: boolean
+  preferLunchSnack: boolean
+  preferDinnerSnack: boolean
 }
 
 export interface CreateCustomer {
@@ -22,7 +25,7 @@ export interface CreateCustomer {
   fullname: string
   address: string
   pinAddress: string
-  remark: string
+  remark: string | null
   mobileNumber: string
   email: string
   deliveryTime: string
@@ -31,6 +34,9 @@ export interface CreateCustomer {
   preferBreakfast: boolean
   preferLunch: boolean
   preferDinner: boolean
+  preferBreakfastSnack: boolean
+  preferLunchSnack: boolean
+  preferDinnerSnack: boolean
 }
 
 export interface ListCustomerOptions {
@@ -54,4 +60,8 @@ export interface EditCustomer {
   preferBreakfast: boolean
   preferLunch: boolean
   preferDinner: boolean
+  preferDinnerSnack: boolean
+  preferBreakfastSnack: boolean
+  preferLunchSnack: boolean
+
 }

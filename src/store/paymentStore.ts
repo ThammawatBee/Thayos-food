@@ -26,8 +26,8 @@ interface PaymentState {
 
 
 export const generateParam = (search: PaymentSearch) => {
-  let dateStart = search.dateStart ? DateTime.fromJSDate(search.dateStart).toFormat('dd-MM-yyyy') : ''
-  let dateEnd = search.dateEnd ? DateTime.fromJSDate(search.dateEnd).toFormat('dd-MM-yyyy') : ''
+  let dateStart = search.dateStart ? DateTime.fromJSDate(search.dateStart).toFormat('yyyy-MM-dd') : ''
+  let dateEnd = search.dateEnd ? DateTime.fromJSDate(search.dateEnd).toFormat('yyyy-MM-dd') : ''
   return pickBy({ dateStart, dateEnd }, (value) => !!value)
 }
 

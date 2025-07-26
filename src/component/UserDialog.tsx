@@ -11,10 +11,11 @@ interface UserDialogProps {
   isOpenDialog: boolean
   setOpenDialog: (value: boolean) => void
   user: User | null
+  resetUser: () => void
 }
 
 
-const UserDialog = ({ isOpenDialog, setOpenDialog, user }: UserDialogProps) => {
+const UserDialog = ({ isOpenDialog, setOpenDialog, user, resetUser }: UserDialogProps) => {
   const { createUser, editUser } = useUserStore()
 
   const formik = useFormik({
@@ -106,6 +107,7 @@ const UserDialog = ({ isOpenDialog, setOpenDialog, user }: UserDialogProps) => {
   return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"}
     onExitComplete={() => {
       formik.resetForm()
+      resetUser()
     }}>
     <Portal>
       <Dialog.Backdrop />

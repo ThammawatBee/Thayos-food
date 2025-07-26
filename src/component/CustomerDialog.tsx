@@ -14,10 +14,11 @@ interface CustomerDialogProps {
   isOpenDialog: boolean
   setOpenDialog: (value: boolean) => void
   customer: Customer | null
+  resetCustomer: () => void
 }
 
 
-const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialogProps) => {
+const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }: CustomerDialogProps) => {
   const { createCustomer, editCustomer } = useCustomerStore()
   const formik = useFormik({
     initialValues: {
@@ -35,6 +36,9 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
       preferBreakfast: false,
       preferLunch: false,
       preferDinner: false,
+      preferBreakfastSnack: false,
+      preferLunchSnack: false,
+      preferDinnerSnack: false,
     },
     validationSchema: Yup.object({
       customerCode: Yup.string().required('Customer code is required.'),
@@ -42,7 +46,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
       fullname: Yup.string().required('Fullname is required.'),
       address: Yup.string().required('Address is required.'),
       pinAddress: Yup.string().required('Pin Address is required.'),
-      remark: Yup.string().required('Remark is required.'),
+      remark: Yup.string().optional().nullable(),
       mobileNumber: Yup.string().required('Mobile Number is required.').matches(/^0[689]\d{8}$/, 'Invalid phone number'),
       email: Yup.string().required('Email is required').email('Invalid email format'),
       deliveryTime: Yup.string().required('Delivery time is required.'),
@@ -76,6 +80,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
         try {
           await createCustomer({
             ...value,
+            remark: value.remark || null,
             latitude: value.latitude ? +value.latitude : 0,
             longitude: value.longitude ? +value.longitude : 0,
           })
@@ -132,6 +137,9 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
         preferBreakfast: customer.preferBreakfast,
         preferLunch: customer.preferLunch,
         preferDinner: customer.preferDinner,
+        preferBreakfastSnack: customer.preferBreakfastSnack,
+        preferLunchSnack: customer.preferLunchSnack,
+        preferDinnerSnack: customer.preferDinnerSnack,
       })
     }
   }, [customer])
@@ -139,6 +147,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
   return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"}
     onExitComplete={() => {
       formik.resetForm()
+      resetCustomer()
     }}>
     <Portal>
       <Dialog.Backdrop />
@@ -254,6 +263,38 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer }: CustomerDialo
                     <Checkbox.HiddenInput />
                     <Checkbox.Control />
                     <Checkbox.Label>มื้อเย็น</Checkbox.Label>
+                  </Checkbox.Root>
+                </Box>
+              </Box>
+              <Box marginTop={'10px'} display={'flex'} justifyContent={'space-between'}>
+                <Box>
+                  <Checkbox.Root size={'md'}
+                    checked={formik.values.preferBreakfastSnack}
+                    onCheckedChange={(e) => formik.setFieldValue("preferBreakfastSnack", !!e.checked)}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>ของว่างเช้า</Checkbox.Label>
+                  </Checkbox.Root>
+                </Box>
+                <Box>
+                  <Checkbox.Root size={'md'}
+                    checked={formik.values.preferLunchSnack}
+                    onCheckedChange={(e) => formik.setFieldValue("preferLunchSnack", !!e.checked)}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>ของว่างกลางวัน</Checkbox.Label>
+                  </Checkbox.Root>
+                </Box>
+                <Box>
+                  <Checkbox.Root size={'md'}
+                    checked={formik.values.preferDinnerSnack}
+                    onCheckedChange={(e) => formik.setFieldValue("preferDinnerSnack", !!e.checked)}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>ของว่างเย็น</Checkbox.Label>
                   </Checkbox.Root>
                 </Box>
               </Box>
