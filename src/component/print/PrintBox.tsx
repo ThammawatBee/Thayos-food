@@ -12,8 +12,9 @@ export const BoxData = ({ bag, orderItem }: { bag: Bag, orderItem: OrderItem }) 
     <Text fontSize={"6px"} fontWeight={'bold'}>{DateTime.fromISO(bag.deliveryAt).toFormat('dd/MM/yyyy')}</Text>
     <Text fontSize={"6px"}>{bag.order.customer.customerCode} {bag.order.customer.fullname}</Text>
     <Text fontSize={"6px"}>Remark: {bag.order.remark || '-'}</Text>
+    <Text fontSize={"6px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
     <Text fontSize={"6px"}>{orderItem.type}</Text>
-    <Text fontSize={"6px"}>ที่อยู่: {bag.order.address}</Text>
+    <Text fontSize={"6px"}>ที่อยู่: {bag.address}</Text>
     <Text fontSize={"6px"}>เวลาจัดส่ง: {DateTime.fromFormat(bag.order.deliveryTime, "HH:mm:ss").toFormat("HH:mm")}</Text>
   </Box>
 }
