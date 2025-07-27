@@ -3,8 +3,9 @@ import axiosInstance from "./axios"
 import { CreateUser, EditUser, ListUserOptions, User } from "../interface/user"
 import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../interface/customer"
 import { Holiday } from "../interface/holiday"
-import { Order, OrderItem, OrderPayload } from "../interface/order"
+import { ListOrderOptions, Order, OrderItem, OrderPayload, UpdateOrderPayload } from "../interface/order"
 import { ListPaymentOptions, Payment } from "../interface/payment"
+import { Bag, ListBagOptions, UpdateBag } from "../interface/bag"
 
 export const login = async (payload: LoginPayload) => {
   const response = await axiosInstance.post('/auth/login', { ...payload })
@@ -98,4 +99,36 @@ export const listCustomerOrderItem = async (customerId: string, year: string) =>
 export const listPayments = async (options: ListPaymentOptions) => {
   const response = await axiosInstance.get(`/orders/payment`, { params: options });
   return response as unknown as { payments: Payment[], count: number };
+}
+
+export const listBags = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/bags`, { params: options });
+  return response as unknown as { bags: Bag[], count: number };
+}
+
+export const exportBags = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/bags/export`, { params: options, responseType: 'blob', });
+  return response
+}
+
+export const updateBags = async (bags: { id: string, basket: string }[]) => {
+  const response = await axiosInstance.patch(`/orders/bags`, { bags });
+  return response;
+}
+
+export const updateBag = async (bagId: string, payload: UpdateBag) => {
+  const res = await axiosInstance.patch(`/orders/bag/${bagId}`, {
+    ...payload
+  })
+  return res as unknown
+}
+
+export const listOrders = async (options: ListOrderOptions) => {
+  const response = await axiosInstance.get(`/orders`, { params: options });
+  return response as unknown as { orders: Order[], count: number };
+}
+
+export const updateOrder = async (orderId: string, payload: UpdateOrderPayload) => {
+  const response = await axiosInstance.patch(`/orders/${orderId}`, { ...payload });
+  return response as unknown as { orders: Order[], count: number };
 }

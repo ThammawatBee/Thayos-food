@@ -1,6 +1,6 @@
 import DatePicker from "react-datepicker"
 import AppBar from "../component/AppBar"
-import { Box, Button, ButtonGroup, IconButton, Input, Pagination, Table, Text } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Field, IconButton, Input, Pagination, Table, Text } from "@chakra-ui/react"
 import usePaymentStore from "../store/paymentStore"
 import { DateTime } from "luxon"
 import PageSizeSelect from "../component/PageSizeSelect"
@@ -21,29 +21,34 @@ const PaymentPage = () => {
     <AppBar />
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
       <Text marginBottom={"20px"} textStyle={'xl'} color={'#1A69AA'} fontWeight='bold'>Payment</Text>
-      <Box display='flex' marginTop='20px' justifyContent='space-between'>
-        <DatePicker
-          dateFormat="dd-MM-yyyy"
-          showMonthDropdown
-          showYearDropdown
-          isClearable
-          onChange={(dates) => {
-            const [start, end] = dates
-            setSearch({
-              dateStart: start,
-              dateEnd: end
-            })
-          }}
+      <Box display='flex' marginTop='20px' justifyContent='space-between' alignItems='end'>
+        <Box>
+          <Field.Root>
+            <Field.Label>Select Date</Field.Label>
+            <DatePicker
+              dateFormat="dd-MM-yyyy"
+              showMonthDropdown
+              showYearDropdown
+              isClearable
+              onChange={(dates) => {
+                const [start, end] = dates
+                setSearch({
+                  dateStart: start,
+                  dateEnd: end
+                })
+              }}
 
-          selectsRange={true}
-          startDate={search.dateStart}
-          endDate={search.dateEnd}
-          onKeyDown={(e) => e.preventDefault()}
-          customInput={<Input
-            width={'240px'}
-            readOnly={true}
-            background={'white'} />}
-        />
+              selectsRange={true}
+              startDate={search.dateStart}
+              endDate={search.dateEnd}
+              onKeyDown={(e) => e.preventDefault()}
+              customInput={<Input
+                width={'240px'}
+                readOnly={true}
+                background={'white'} />}
+            />
+          </Field.Root>
+        </Box>
         <Button onClick={() => {
           fetchPayments({ reset: true })
         }}>Search</Button>

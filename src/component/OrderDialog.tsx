@@ -18,6 +18,32 @@ interface OrderDialogProps {
   setOpenDialog: (value: boolean) => void
 }
 
+const Step2Validate = {
+  customerType: Yup.string().required('Customer type is required.'),
+  customerTypeInput: Yup.string()
+    .when('customerType', {
+      is: 'OTHER',
+      then: schema => schema.required('Other Customer type is required.'),
+      otherwise: schema => schema.notRequired(),
+    }),
+  paymentType: Yup.string().required('Payment type is required.'),
+  paymentTypeInput: Yup.string()
+    .when('paymentType', {
+      is: 'OTHER',
+      then: schema => schema.required('Other Payment type is required.'),
+      otherwise: schema => schema.notRequired(),
+    }),
+  slip: Yup.mixed().required('Slip is required'),
+  total: Yup.number().required('Total is required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+  promotion: Yup.string().required('Promotion type is required.'),
+  promotionInput: Yup.string()
+    .when('paymentType', {
+      is: 'OTHER',
+      then: schema => schema.required('Other Promotion type is required.'),
+      otherwise: schema => schema.notRequired(),
+    }),
+}
+
 
 const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const [mode, setMode] = useState('customer')
@@ -32,9 +58,13 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
 
   const validateSchema = [Yup.object({
     type: Yup.string().required('Order type is required.'),
+    address: Yup.string().required('Address is required.'),
     preferBreakfast: Yup.boolean(),
     preferLunch: Yup.boolean(),
     preferDinner: Yup.boolean(),
+    preferBreakfastSnack: Yup.boolean(),
+    preferLunchSnack: Yup.boolean(),
+    preferDinnerSnack: Yup.boolean(),
     deliveryTime: Yup.string().required('Delivery time is required.'),
     deliveryOn: Yup.object({
       Sunday: Yup.boolean(),
@@ -65,12 +95,30 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
         otherwise: schema => schema.notRequired(),
       }),
+    breakfastSnackCount: Yup.number().typeError('Must be a number')
+      .when('preferBreakfastSnack', {
+        is: true,
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    lunchSnackCount: Yup.number().typeError('Must be a number')
+      .when('preferLunchSnack', {
+        is: true,
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    dinnerSnackCount: Yup.number().typeError('Must be a number')
+      .when('preferDinnerSnack', {
+        is: true,
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
     mealsGroup: Yup.mixed().test(
       'at-least-one-meal',
       'At least one meal must be selected',
       function () {
-        const { preferBreakfast, preferLunch, preferDinner } = this.parent;
-        return [preferBreakfast, preferLunch, preferDinner].some(Boolean);
+        const { preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack } = this.parent;
+        return [preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack].some(Boolean);
       }
     ),
 
@@ -84,31 +132,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         return deliveryOn && Object.values(deliveryOn).some(Boolean);
       })
   }),
-  Yup.object({
-    customerType: Yup.string().required('Customer type is required.'),
-    customerTypeInput: Yup.string()
-      .when('customerType', {
-        is: 'OTHER',
-        then: schema => schema.required('Other Customer type is required.'),
-        otherwise: schema => schema.notRequired(),
-      }),
-    paymentType: Yup.string().required('Payment type is required.'),
-    paymentTypeInput: Yup.string()
-      .when('paymentType', {
-        is: 'OTHER',
-        then: schema => schema.required('Other Payment type is required.'),
-        otherwise: schema => schema.notRequired(),
-      }),
-    slip: Yup.mixed().required('Slip is required'),
-    total: Yup.number().required('Total is required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
-    promotion: Yup.string().required('Promotion type is required.'),
-    promotionInput: Yup.string()
-      .when('paymentType', {
-        is: 'OTHER',
-        then: schema => schema.required('Other Promotion type is required.'),
-        otherwise: schema => schema.notRequired(),
-      }),
-  }),
+  Yup.object(Step2Validate),
   ]
 
   const initCustomerStep = async () => {
@@ -154,18 +178,29 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       formik.setFieldValue('preferBreakfast', selectedCustomer.preferBreakfast)
       formik.setFieldValue('preferLunch', selectedCustomer.preferLunch)
       formik.setFieldValue('preferDinner', selectedCustomer.preferDinner)
+      formik.setFieldValue('address', selectedCustomer.address)
+      formik.setFieldValue('remark', selectedCustomer.remark)
     }
   }, [selectedCustomer])
 
   const formik = useFormik({
     initialValues: {
       type: '',
+      address: '',
+      remark: '',
+      deliveryRemark: '',
       preferBreakfast: false,
       preferLunch: false,
       preferDinner: false,
+      preferBreakfastSnack: false,
+      preferLunchSnack: false,
+      preferDinnerSnack: false,
       breakfastCount: 0,
       lunchCount: 0,
       dinnerCount: 0,
+      breakfastSnackCount: 0,
+      lunchSnackCount: 0,
+      dinnerSnackCount: 0,
       deliveryTime: '00:00',
       deliveryOn: {
         Sunday: false,
@@ -194,19 +229,34 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
     onSubmit: async (value) => {
       if (formStep === 0) {
         setFromStep(1)
+        formik.setTouched(
+          Object.keys(Step2Validate).reduce((acc, key) => {
+            acc[key] = false
+            return acc
+          }, {} as Record<string, boolean>)
+        )
       }
       else {
         const startDate = value.startDate ? DateTime.fromJSDate(value.startDate).toISODate() : ''
         const endDate = value.endDate ? DateTime.fromJSDate(value.endDate).toISODate() : ''
         const file = value.slip as File | null
         await createOrder({
+          address: value.address,
+          remark: value.remark,
+          deliveryRemark: value.deliveryRemark,
           type: value.type,
           preferBreakfast: value.preferBreakfast,
           preferLunch: value.preferLunch,
           preferDinner: value.preferDinner,
+          preferBreakfastSnack: value.preferBreakfastSnack,
+          preferLunchSnack: value.preferLunchSnack,
+          preferDinnerSnack: value.preferDinnerSnack,
           breakfastCount: value.preferBreakfast ? +value.breakfastCount : 0,
           lunchCount: value.preferLunch ? +value.lunchCount : 0,
           dinnerCount: value.preferDinner ? +value.dinnerCount : 0,
+          breakfastSnackCount: value.preferBreakfastSnack ? +value.breakfastSnackCount : 0,
+          lunchSnackCount: value.preferLunchSnack ? +value.lunchSnackCount : 0,
+          dinnerSnackCount: value.preferDinnerSnack ? +value.dinnerSnackCount : 0,
           deliveryTime: value.deliveryTime,
           deliveryOn: value.deliveryOn,
           startDate: startDate,
@@ -221,6 +271,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         SuccessToast("Create order success")
         setOpenDialog(false)
         formik.resetForm()
+        setFromStep(0)
         setMode('customer')
         setSelectedCustomer(null)
       }
@@ -334,6 +385,21 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           <Field.Label>Customer Name</Field.Label>
           <Input disabled value={selectedCustomer?.name} />
         </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.address && !!formik.errors.address}>
+          <Field.Label>Address</Field.Label>
+          <Input value={formik?.values?.address} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("address", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.address}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.remark && !!formik.errors.remark}>
+          <Field.Label>Remark</Field.Label>
+          <Input value={formik?.values?.remark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("remark", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.remark}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.deliveryRemark && !!formik.errors.deliveryRemark}>
+          <Field.Label>Delivery Remark</Field.Label>
+          <Input value={formik?.values?.deliveryRemark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("deliveryRemark", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.deliveryRemark}</Field.ErrorText>
+        </Field.Root>
         <Field.Root marginBottom="20px" invalid={!!formik.touched.type && !!formik.errors.type}>
           <Field.Label>Order Type</Field.Label>
           <NativeSelect.Root>
@@ -430,6 +496,59 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             </Box>
           </Box>
         </Box>
+        <Box display={'flex'} justifyContent={'space-between'} marginTop="10px">
+          <Box>
+            <Checkbox.Root size={'md'}
+              checked={formik.values.preferBreakfastSnack}
+              onCheckedChange={(e) => formik.setFieldValue("preferBreakfastSnack", !!e.checked)}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>ของว่างเช้า</Checkbox.Label>
+            </Checkbox.Root>
+            <Box marginTop={'20px'}>
+              <Field.Root marginBottom="15px" invalid={!!formik.touched.breakfastSnackCount && !!formik.errors.breakfastSnackCount}>
+                <Field.Label>จำนวน</Field.Label>
+                <Input type="number" disabled={!formik?.values?.preferBreakfastSnack} value={formik?.values?.breakfastSnackCount} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("breakfastSnackCount", e.currentTarget.value) }} />
+                <Field.ErrorText>{formik.errors.breakfastSnackCount}</Field.ErrorText>
+              </Field.Root>
+            </Box>
+          </Box>
+          <Box>
+            <Checkbox.Root size={'md'}
+              checked={formik.values.preferLunchSnack}
+              onCheckedChange={(e) => formik.setFieldValue("preferLunchSnack", !!e.checked)}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>ของว่างกลางวัน</Checkbox.Label>
+            </Checkbox.Root>
+            <Box marginTop={'20px'}>
+              <Field.Root marginBottom="15px" invalid={!!formik.touched.lunchSnackCount && !!formik.errors.lunchSnackCount}>
+                <Field.Label>จำนวน</Field.Label>
+                <Input type="number" disabled={!formik?.values?.preferLunchSnack} value={formik?.values?.lunchSnackCount} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("lunchSnackCount", e.currentTarget.value) }} />
+                <Field.ErrorText>{formik.errors.lunchSnackCount}</Field.ErrorText>
+              </Field.Root>
+            </Box>
+          </Box>
+          <Box>
+            <Checkbox.Root size={'md'}
+              checked={formik.values.preferDinnerSnack}
+              onCheckedChange={(e) => formik.setFieldValue("preferDinnerSnack", !!e.checked)}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>ของว่างมื้อเย็น</Checkbox.Label>
+            </Checkbox.Root>
+            <Box marginTop={'20px'}>
+              <Field.Root marginBottom="15px" invalid={!!formik.touched.dinnerSnackCount && !!formik.errors.dinnerSnackCount}>
+                <Field.Label>จำนวน</Field.Label>
+                <Input type="number" disabled={!formik?.values?.preferDinnerSnack} value={formik?.values?.dinnerSnackCount} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("dinnerSnackCount", e.currentTarget.value) }} />
+                <Field.ErrorText>{formik.errors.dinnerSnackCount}</Field.ErrorText>
+              </Field.Root>
+            </Box>
+          </Box>
+        </Box>
         {formik.submitCount > 0 && formik.errors.mealsGroup && <div style={{ color: 'red' }}>{formik.errors.mealsGroup}</div>}
         <Box>
           <Field.Root invalid={(!!formik.touched.startDate && !!formik.errors.startDate) || (!!formik.touched.endDate && !!formik.errors.endDate)}>
@@ -508,14 +627,6 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
               <Checkbox.HiddenInput />
               <Checkbox.Control />
               <Checkbox.Label>วันเสาร์</Checkbox.Label>
-            </Checkbox.Root>
-            <Checkbox.Root size={'md'}
-              checked={formik.values.deliveryOn.Sunday}
-              onCheckedChange={(e) => formik.setFieldValue("deliveryOn.Sunday", !!e.checked)}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>วันอาทิตย์</Checkbox.Label>
             </Checkbox.Root>
           </Box>
           {formik.submitCount > 0 && formik.errors.deliveryDaysGroup && (
@@ -643,7 +754,6 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const renderContent = () => {
     return mode === 'customer' ? CustomerContent() : FormContent()
   }
-  console.log('formik.errors', formik.errors)
 
   return <Dialog.Root lazyMount open={isOpenDialog} size="xl"
     onExitComplete={() => {
@@ -679,6 +789,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             setOpenDialog(false)
             formik.resetForm()
             setMode('customer')
+            setFromStep(0)
             setSelectedCustomer(null)
           }
           }>

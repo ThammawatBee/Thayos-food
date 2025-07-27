@@ -7,13 +7,16 @@ interface DeleteUserDialogDialogProps {
   isOpenDialog: boolean
   setOpenDialog: (value: boolean) => void
   user: User | null
+  resetUser: () => void
 }
 
 
 
-const DeleteUserDialog = ({ isOpenDialog, setOpenDialog, user }: DeleteUserDialogDialogProps) => {
+const DeleteUserDialog = ({ isOpenDialog, setOpenDialog, user, resetUser }: DeleteUserDialogDialogProps) => {
   const { deleteUser } = useUserStore()
-  return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"}>
+  return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"} onExitComplete={() => {
+    resetUser()
+  }}>
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
