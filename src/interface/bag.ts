@@ -3,6 +3,7 @@ export type OrderItem = {
   type: string
   deliveryAt: string
   qrcode: string
+  inBagStatus: boolean
 }
 
 export type Bag = {
