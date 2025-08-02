@@ -22,7 +22,7 @@ import get from "lodash/get"
 import UpdateOrderDialog from "../component/UpdateOrderDialog"
 import PrintBag from "../component/print/PrintBag"
 import { useReactToPrint } from "react-to-print";
-import { renderMenu, types } from "../utils/renderOrderMenu"
+import { displayMenu, renderMenu, types } from "../utils/renderOrderMenu"
 import PrintListBags from "../component/print/PrintListBags"
 import PrintBox from "../component/print/PrintBox"
 import PrintListBoxes from "../component/print/PrintListBoxes"
@@ -460,7 +460,7 @@ const OrderPage = () => {
                           <Table.Cell>{bag.address || ''}</Table.Cell>
                           <Table.Cell>{bag.order.remark}</Table.Cell>
                           <Table.Cell>{bag.order.deliveryRemark}</Table.Cell>
-                          <Table.Cell>{orderItem.type}</Table.Cell>
+                          <Table.Cell>{displayMenu(orderItem.type)}</Table.Cell>
                           <Table.Cell>{bag.basket || ''}</Table.Cell>
                           <Table.Cell>
                             <IconButton

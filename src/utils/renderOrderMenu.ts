@@ -20,3 +20,8 @@ export const renderMenu = (bag: Bag) => {
   })
   return text
 }
+
+export const displayMenu = (menu: string) => {
+  const type = types.find(type => type.value === menu)
+  return type?.text || ''
+}

@@ -132,3 +132,18 @@ export const updateOrder = async (orderId: string, payload: UpdateOrderPayload) 
   const response = await axiosInstance.patch(`/orders/${orderId}`, { ...payload });
   return response as unknown as { orders: Order[], count: number };
 }
+
+export const getBag = async (bagId: string) => {
+  const response = await axiosInstance.get(`/orders/bag/${bagId}`);
+  return response as unknown as { bag: Bag };
+}
+
+export const verifyBoxApi = async (bagId: string, orderItemId: string) => {
+  const response = await axiosInstance.post(`/orders/verify-order-item`, { bagId, orderItemId });
+  return response as unknown as { status: string };
+}
+
+export const verifyBagApi = async (bagId: string, basket: string) => {
+  const response = await axiosInstance.post(`/orders/verify-bag`, { bagId, basket });
+  return response as unknown as { status: string };
+}

@@ -20,6 +20,12 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     checkAuth();
   }, [])
 
+  useEffect(() => {
+    if (profile && profile.role === 'checker') {
+      navigate('/verify', { replace: true })
+    }
+  }, [profile])
+
 
   if (profile === null) {
     <Box height={"90vh"} display={"flex"} flexDirection={"column"} alignItems={"center"} justifyContent={"center"}>

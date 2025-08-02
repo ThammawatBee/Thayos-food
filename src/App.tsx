@@ -10,6 +10,7 @@ import CalendarPage from "./page/CalendarPage";
 import "react-datepicker/dist/react-datepicker.css";
 import OrderPage from "./page/OrderPage";
 import PaymentPage from "./page/PaymentPage";
+import VerifyPage from "./page/VerifyPage";
 
 function App() {
   return (
@@ -35,6 +36,10 @@ function App() {
         <Route path="/payment" element={
           <PrivateRoute>
             <PaymentPage />
+          </PrivateRoute>} />
+        <Route path="/verify" element={
+          <PrivateRoute>
+            <VerifyPage />
           </PrivateRoute>} />
         <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
         <Route path="/*" element={<LoginPage />} />
