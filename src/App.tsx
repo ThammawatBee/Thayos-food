@@ -11,6 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import OrderPage from "./page/OrderPage";
 import PaymentPage from "./page/PaymentPage";
 import VerifyPage from "./page/VerifyPage";
+import HistoryPage from "./page/HistoryPage";
 
 function App() {
   return (
@@ -40,6 +41,10 @@ function App() {
         <Route path="/verify" element={
           <PrivateRoute>
             <VerifyPage />
+          </PrivateRoute>} />
+        <Route path="/history" element={
+          <PrivateRoute>
+            <HistoryPage />
           </PrivateRoute>} />
         <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
         <Route path="/*" element={<LoginPage />} />

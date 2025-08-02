@@ -6,6 +6,7 @@ import { Holiday } from "../interface/holiday"
 import { ListOrderOptions, Order, OrderItem, OrderPayload, UpdateOrderPayload } from "../interface/order"
 import { ListPaymentOptions, Payment } from "../interface/payment"
 import { Bag, ListBagOptions, UpdateBag } from "../interface/bag"
+import { ListLogOptions, Log } from "../interface/log"
 
 export const login = async (payload: LoginPayload) => {
   const response = await axiosInstance.post('/auth/login', { ...payload })
@@ -146,4 +147,9 @@ export const verifyBoxApi = async (bagId: string, orderItemId: string) => {
 export const verifyBagApi = async (bagId: string, basket: string) => {
   const response = await axiosInstance.post(`/orders/verify-bag`, { bagId, basket });
   return response as unknown as { status: string };
+}
+
+export const listLogs = async (options: ListLogOptions) => {
+  const response = await axiosInstance.get(`/logs`, { params: options });
+  return response as unknown as { logs: Log[], count: number };
 }

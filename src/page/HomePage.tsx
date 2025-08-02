@@ -71,7 +71,7 @@ const HomePage = () => {
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>User Management</Text>
         </Box> : null}
         <Box>
-          <Link to="/">
+          <Link to="/history">
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
             // _hover={{ background: '#F4F4F5' }}
             >
