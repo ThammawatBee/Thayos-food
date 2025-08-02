@@ -142,3 +142,8 @@ export const verifyBoxApi = async (bagId: string, orderItemId: string) => {
   const response = await axiosInstance.post(`/orders/verify-order-item`, { bagId, orderItemId });
   return response as unknown as { status: string };
 }
+
+export const verifyBagApi = async (bagId: string, basket: string) => {
+  const response = await axiosInstance.post(`/orders/verify-bag`, { bagId, basket });
+  return response as unknown as { status: string };
+}

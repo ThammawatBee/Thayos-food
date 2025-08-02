@@ -1,3 +1,4 @@
+import VerifyBasket from "../component/VerifyBasket"
 import VerifyBag from "../component/VerifyBox"
 import { Box, Text } from "@chakra-ui/react"
 import { useState } from "react"
@@ -29,6 +30,9 @@ const VerifyPage = () => {
     }
     else if (mode === 'checkBox') {
       return <VerifyBag setMode={setMode} />
+    }
+    else if (mode === 'checkBag') {
+      return <VerifyBasket setMode={setMode} />
     }
     return <Box></Box>
   }

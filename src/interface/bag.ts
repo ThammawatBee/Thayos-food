@@ -26,6 +26,7 @@ export type Bag = {
   }
   orderItems: OrderItem[]
   basket: string | null
+  inBasketStatus: boolean
 }
 
 export type ListBagOptions = {

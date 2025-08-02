@@ -1,4 +1,4 @@
-import { types } from "../utils/renderOrderMenu"
+import { displayMenu, types } from "../utils/renderOrderMenu"
 import { Bag } from "../interface/bag"
 import { getBag, verifyBoxApi } from "../service/thayos-food"
 import { Box, Button, Input, Text } from "@chakra-ui/react"
@@ -22,6 +22,7 @@ const VerifyBag = ({ setMode }: VerifyBagProps) => {
     try {
       const result = await getBag(bag)
       setBagData(result.bag)
+      setBox("")
       inputRef.current?.focus();
     } catch (error) {
       let message = ''
@@ -122,31 +123,31 @@ const VerifyBag = ({ setMode }: VerifyBagProps) => {
       setMode("init")
     }}>Back</Button>
     <Box marginTop={"35px"}>
-      <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-        <Text textStyle="md">ถุง</Text>
-        <Input width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
+      <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'} textStyle="lg">
+        <Text>ถุง</Text>
+        <Input fontSize={'lg'}  width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
       </Box>
       <Box marginTop={"30px"} padding={"20px"} minHeight={"200px"} borderWidth="1px">
         {
-          bagData ? <Box>
+          bagData ? <Box textStyle="lg">
             <Text>จัดส่ง: {bagData.deliveryAt}</Text>
             <Text>ลูกค้า: {bagData.order.customer.fullname}</Text>
             <Text>ที่อยู่: {bagData.address || ''}</Text>
-            <Text>Menu</Text>
+            <Text marginTop={'25px'}>Menu</Text>
             {
               sortBy(bagData.orderItems, (item) =>
                 indexMap.has(item.type) ? indexMap.get(item.type)! : Infinity).map(orderItem =>
                   <Box display={'flex'}>
-                    <Text>- {orderItem.type}</Text> {orderItem.inBagStatus ? <Text marginLeft={"15px"} fontWeight={'medium'} color={'#06B050'}>complete</Text> : ''}
+                    <Text>- {displayMenu(orderItem.type)}</Text> {orderItem.inBagStatus ? <Text marginLeft={"15px"} fontWeight={'medium'} color={'#06B050'}>เสร็จสิ้น</Text> : ''}
                   </Box>
                 )
             }
           </Box> : null
         }
       </Box>
-      <Box marginTop={"30px"} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-        <Text textStyle="md">กล่อง</Text>
-        <Input ref={inputRef} width={"80%"} value={box} onChange={e => { setBox(e.currentTarget.value) }} />
+      <Box marginTop={"30px"} display={'flex'} alignItems={'center'} justifyContent={'space-between'} textStyle="lg">
+        <Text textStyle="lg">กล่อง</Text>
+        <Input fontSize={'lg'} ref={inputRef} width={"80%"} value={box} onChange={e => { setBox(e.currentTarget.value) }} />
       </Box>
     </Box>
   </Box>
