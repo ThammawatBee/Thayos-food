@@ -3,7 +3,7 @@ import { Bag, UpdateBag } from "../interface/bag";
 import { create } from "zustand";
 import pickBy from "lodash/pickBy";
 import { DateTime } from "luxon";
-import { listBags, updateBag } from "../service/thayos-food";
+import { listBags, removeBag, updateBag } from "../service/thayos-food";
 
 type BagSearch = {
   customer?: string
@@ -25,6 +25,7 @@ interface BagState {
   onPageSizeChange: (pageSize: number) => Promise<void>
   setSearch: (input: BagSearch) => void
   updateBag: (bagId: string, payload: UpdateBag) => Promise<void>
+  deleteBag: (id: string) => Promise<void>
 }
 
 export const generateParam = (search: BagSearch) => {
@@ -101,6 +102,11 @@ const useBagStore = create<BagState>()(
     updateBag: async (bagId: string, payload: UpdateBag) => {
       await updateBag(bagId, payload)
       const { fetchBags } = get()
+      await fetchBags({ reset: true })
+    },
+    deleteBag: async (id: string) => {
+      const { fetchBags } = get()
+      await removeBag(id)
       await fetchBags({ reset: true })
     }
   })

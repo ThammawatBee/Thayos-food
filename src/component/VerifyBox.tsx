@@ -1,6 +1,6 @@
 import { displayMenu, types } from "../utils/renderOrderMenu"
-import { Bag } from "../interface/bag"
-import { getBag, verifyBoxApi } from "../service/thayos-food"
+import { GroupBag } from "../interface/bag"
+import { getBagQrCode, verifyBoxApi } from "../service/thayos-food"
 import { Box, Button, Input, Text } from "@chakra-ui/react"
 import sortBy from "lodash/sortBy"
 import { useEffect, useRef, useState } from "react"
@@ -14,13 +14,13 @@ interface VerifyBagProps {
 const VerifyBag = ({ setMode }: VerifyBagProps) => {
   const [bag, setBag] = useState("")
   const [box, setBox] = useState("")
-  const [bagData, setBagData] = useState<Bag | null>(null)
+  const [bagData, setBagData] = useState<GroupBag | null>(null)
   const inputRef = useRef<HTMLInputElement>(null);
   const indexMap = new Map(types.map((val, idx) => [val.value, idx]));
 
   const getBagData = async () => {
     try {
-      const result = await getBag(bag)
+      const result = await getBagQrCode(bag)
       setBagData(result.bag)
       setBox("")
       inputRef.current?.focus();
@@ -52,9 +52,9 @@ const VerifyBag = ({ setMode }: VerifyBagProps) => {
     }
   }, [bag]);
 
-  const callVerify = async (bagId: string, orderItemId: string) => {
+  const callVerify = async (bagQrCode: string, orderItemId: string) => {
     try {
-      await verifyBoxApi(bagId, orderItemId)
+      await verifyBoxApi(bagQrCode, orderItemId)
       SuccessToast("Verify Box success")
       getBagData()
     } catch (error) {
@@ -86,28 +86,29 @@ const VerifyBag = ({ setMode }: VerifyBagProps) => {
           const filterVerifyOrderItems = filterOrderItemByQrcode.filter(orderItem => !orderItem.inBagStatus)
           if (filterVerifyOrderItems.length) {
             // send [0] to verify
-            await callVerify(bagData.id, filterVerifyOrderItems[0].id)
+            await callVerify(bagData.qrCode, filterVerifyOrderItems[0].id)
           } else {
             SuccessToast("Box is already in Bag")
             // toast already in box
           }
         }
         else {
-          toast.error("Not found Box in Bag", {
-            style: { color: '#18181B' },
-            position: "top-right",
-            autoClose: 3500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          // toast.error("Not found Box in Bag", {
+          //   style: { color: '#18181B' },
+          //   position: "top-right",
+          //   autoClose: 3500,
+          //   hideProgressBar: false,
+          //   closeOnClick: true,
+          //   pauseOnHover: true,
+          //   draggable: true,
+          //   progress: undefined,
+          //   theme: "light",
+          // });
+          await callVerify(bagData.qrCode, box)
         }
       } else {
         // send [0] to verify
-        await callVerify(bagData.id, box)
+        await callVerify(bagData.qrCode, box)
       }
     }
   }
@@ -125,13 +126,13 @@ const VerifyBag = ({ setMode }: VerifyBagProps) => {
     <Box marginTop={"35px"}>
       <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'} textStyle="lg">
         <Text>ถุง</Text>
-        <Input fontSize={'lg'}  width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
+        <Input fontSize={'lg'} width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
       </Box>
       <Box marginTop={"30px"} padding={"20px"} minHeight={"200px"} borderWidth="1px">
         {
           bagData ? <Box textStyle="lg">
             <Text>จัดส่ง: {bagData.deliveryAt}</Text>
-            <Text>ลูกค้า: {bagData.order.customer.fullname}</Text>
+            <Text>ลูกค้า: {bagData.customerName}</Text>
             <Text>ที่อยู่: {bagData.address || ''}</Text>
             <Text marginTop={'25px'}>Menu</Text>
             {

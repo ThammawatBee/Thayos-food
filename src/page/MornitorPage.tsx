@@ -1,16 +1,14 @@
 import AppBar from "../component/AppBar"
-import { Box, Button, ButtonGroup, Field, IconButton, Input, NativeSelect, Pagination, Table, Text } from "@chakra-ui/react"
-import useHistoryStore, { generateHistoryParam } from "../store/historyStore"
+import { Box, Button, ButtonGroup, Field, IconButton, Input, Pagination, Table, Text } from "@chakra-ui/react"
 import { DateTime } from "luxon"
 import { useEffect } from "react"
 import PageSizeSelect from "../component/PageSizeSelect"
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
 import DatePicker from "react-datepicker"
-import { getLogLabel, LogTypes } from "../utils/renderLogType"
-import { exportHistory } from "../service/thayos-food"
+import useMonitorStore from "../store/mornitorStore"
 
-const HistoryPage = () => {
-  const { logs, limit, onPageSizeChange, onPageChange, offset, count, search, setSearch, fetchLogs } = useHistoryStore()
+const MornitorPage = () => {
+  const { logs, limit, onPageSizeChange, onPageChange, offset, count, search, setSearch, fetchLogs } = useMonitorStore()
   useEffect(() => {
     if (!logs) {
       fetchLogs()
@@ -21,21 +19,6 @@ const HistoryPage = () => {
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
       <Box display='flex' marginTop='20px' justifyContent='space-between' alignItems='end'>
         <Box display='flex'>
-          <Field.Root marginRight="30px">
-            <Field.Label>Operation</Field.Label>
-            <NativeSelect.Root>
-              <NativeSelect.Field
-                placeholder="Select operation"
-                onChange={(e) => setSearch({ type: e.currentTarget.value })}
-                name="type"
-                value={search.type}
-              >
-                <option value="ALL">All</option>
-                {LogTypes.map(logType => <option value={logType.value}>{logType.label}</option>)}
-              </NativeSelect.Field>
-              <NativeSelect.Indicator />
-            </NativeSelect.Root>
-          </Field.Root>
           <Field.Root>
             <Field.Label>Select Date</Field.Label>
             <DatePicker
@@ -66,29 +49,15 @@ const HistoryPage = () => {
           fetchLogs({ reset: true })
         }}>Search</Button>
       </Box>
-      <Box marginTop={"20px"}>
-        <Button bg='#385723' fontWeight='bold'
-          onClick={async () => {
-            const response = await exportHistory(generateHistoryParam(search) as any)
-            const url = window.URL.createObjectURL(new Blob([response as any]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${DateTime.now().toFormat('yyyy-MM-dd-hh-mm')}-history.xlsx`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-          }}
-        >Export as Excel</Button>
-      </Box>
       <Box marginTop={'25px'}>
         <Table.Root size="md">
           <Table.Header>
             <Table.Row background={"#F6F6F6"}>
-              <Table.ColumnHeader>Date Time</Table.ColumnHeader>
-              <Table.ColumnHeader>Operation</Table.ColumnHeader>
-              <Table.ColumnHeader>Operator</Table.ColumnHeader>
+              <Table.ColumnHeader>วันที่ตรวจสอบ</Table.ColumnHeader>
+              <Table.ColumnHeader>Order date</Table.ColumnHeader>
               <Table.ColumnHeader>Customer</Table.ColumnHeader>
               <Table.ColumnHeader>Detail</Table.ColumnHeader>
+              <Table.ColumnHeader>ผู้ตรวจสอบ</Table.ColumnHeader>
               <Table.ColumnHeader>Status</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
@@ -96,10 +65,10 @@ const HistoryPage = () => {
             logs?.length ?
               logs.slice(offset * limit, (offset + 1) * limit).map(log => <Table.Row key={log.id}>
                 <Table.Cell>{DateTime.fromISO(log.createdAt).toFormat("dd/MM/yyyy-hh:mm")}</Table.Cell>
-                <Table.Cell>{getLogLabel(log.type)}</Table.Cell>
-                <Table.Cell>{log.user.name}</Table.Cell>
+                <Table.Cell>{log.bag.deliveryAt ? DateTime.fromISO(log.createdAt).toFormat("dd/MM/yyyy") : ''}</Table.Cell>
                 <Table.Cell>{log.customer ? log.customer.fullname : ''}</Table.Cell>
                 <Table.Cell>{log.detail}</Table.Cell>
+                <Table.Cell>{log.user.name}</Table.Cell>
                 <Table.Cell>{log.status === 'success' ? <Text color={'#06B050'}>Success</Text> : <Text color={'#EF5350'}>Fail</Text>}</Table.Cell>
               </Table.Row>)
               : null}</Table.Body>
@@ -150,4 +119,4 @@ const HistoryPage = () => {
   </Box>
 }
 
-export default HistoryPage
+export default MornitorPage

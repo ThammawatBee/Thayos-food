@@ -6,11 +6,23 @@ export type OrderItem = {
   inBagStatus: boolean
 }
 
+export type GroupBag = {
+  deliveryAt: string
+  customerName: string
+  address: string
+  customerCode: string
+  orderItems: OrderItem[]
+  noRemarkType: boolean
+  qrCode: string
+  inBasketStatus: boolean
+}
+
 export type Bag = {
   id: string
   noRemarkType: boolean
   deliveryAt: string
   address: string
+  qrCode: string
   order: {
     type: string
     address: string

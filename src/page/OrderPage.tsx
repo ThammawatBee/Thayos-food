@@ -1,6 +1,6 @@
 import OrderDialog from "../component/OrderDialog"
 import AppBar from "../component/AppBar"
-import { Box, Button, ButtonGroup, Field, FileUpload, FileUploadTrigger, IconButton, Input, NativeSelect, Pagination, Table, Tabs, Text } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Field, FileUpload, FileUploadTrigger, IconButton, Input, NativeSelect, Pagination, Table, Tabs, Text, useFileUpload } from "@chakra-ui/react"
 import { useEffect, useRef, useState } from "react"
 import useBagStore, { generateParam } from "../store/bagStore"
 import DatePicker from "react-datepicker"
@@ -26,6 +26,8 @@ import { displayMenu, renderMenu, types } from "../utils/renderOrderMenu"
 import PrintListBags from "../component/print/PrintListBags"
 import PrintBox from "../component/print/PrintBox"
 import PrintListBoxes from "../component/print/PrintListBoxes"
+import { FaRegTrashAlt } from "react-icons/fa"
+import DeleteBagDialog from "../component/DeleteBagDialog"
 
 interface UploadRow {
   id: string;
@@ -46,7 +48,7 @@ const OrderPage = () => {
   const [printBox, setPrintBox] = useState<{ bag: Bag, orderItem: OrderItem } | null>(null)
   const [printBoxes, setPrintBoxes] = useState<Bag[] | null>(null)
   const [order, setOrder] = useState<Order | null>(null)
-  const { setSearch, search, fetchBags, bags, offset, limit, onPageChange, onPageSizeChange, count } = useBagStore()
+  const { setSearch, search, fetchBags, bags, offset, limit, onPageChange, onPageSizeChange, count, deleteBag } = useBagStore()
   const { fetchOrders, orders, search: searchOrder, setSearch: setSearchOrder, offset: orderOffset, limit: orderLimit, count: orderCount, onPageChange: orderOnPageChange, onPageSizeChange: orderOnPageSizeChange } = useOrderStore()
   const [mode, setMode] = useState('bag')
   const [pageMode, setPageMode] = useState('Delivery')
@@ -58,6 +60,8 @@ const OrderPage = () => {
     { text: 'มื้อเย็น', value: 'preferDinner', countValue: "dinnerCount" },
     { text: 'ของว่างเย็น', value: 'preferDinnerSnack', countValue: "dinnerSnackCount" },
   ]
+  const [selectDeleteBag, setDeleteBag] = useState<Bag | null>(null)
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
 
   const indexMap = new Map(types.map((val, idx) => [val.value, idx]));
 
@@ -346,17 +350,16 @@ const OrderPage = () => {
                 link.click();
                 link.remove();
               }}
-            >Export as Excel</Button>
-
+            >Export Bag as Excel</Button>
             <FileUpload.Root marginLeft="20px" maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
               if (file.acceptedFiles?.[0]) {
-                handleUploadXlsFile(file.acceptedFiles?.[0])
+                await handleUploadXlsFile(file.acceptedFiles?.[0])
               }
             }}>
               <FileUpload.HiddenInput />
               <FileUploadTrigger asChild>
                 <Button fontWeight="bold">
-                  Upload file
+                  Upload Bag file
                 </Button>
               </FileUploadTrigger>
             </FileUpload.Root>
@@ -390,6 +393,7 @@ const OrderPage = () => {
                     <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
                     <Table.ColumnHeader>เมณู</Table.ColumnHeader>
                     <Table.ColumnHeader>Basket</Table.ColumnHeader>
+                    <Table.ColumnHeader></Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
                   </Table.Row>
@@ -428,6 +432,18 @@ const OrderPage = () => {
                         >
                           <LuPrinter />
                         </IconButton></Table.Cell>
+                      <Table.Cell>
+                        <IconButton
+                          variant="outline"
+                          size={"sm"}
+                          onClick={() => {
+                            setDeleteBag(bag)
+                            setOpenDeleteModal(true)
+                          }}
+                        >
+                          <FaRegTrashAlt />
+                        </IconButton>
+                      </Table.Cell>
                     </Table.Row>) : null
                   }
                 </Table.Body>
@@ -619,6 +635,7 @@ const OrderPage = () => {
     <OrderDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} />
     {bag && <BagDialog resetBag={() => { setBag(null) }} bag={bag} isOpenDialog={openBagModal} setOpenDialog={setOpenBagModal} />}
     {order && <UpdateOrderDialog resetOrder={() => setOrder(null)} order={order} isOpenDialog={openUpdateOrderModal} setOpenDialog={setOpenUpdateOrderModal} />}
+    {selectDeleteBag && <DeleteBagDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} bag={selectDeleteBag} resetBag={() => { setDeleteBag(null) }} />}
     <Box display="none">
       <PrintBag componentPrintRef={componentPrintBagRef} bag={printBag} />
     </Box>

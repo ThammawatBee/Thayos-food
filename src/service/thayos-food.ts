@@ -5,7 +5,7 @@ import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../
 import { Holiday } from "../interface/holiday"
 import { ListOrderOptions, Order, OrderItem, OrderPayload, UpdateOrderPayload } from "../interface/order"
 import { ListPaymentOptions, Payment } from "../interface/payment"
-import { Bag, ListBagOptions, UpdateBag } from "../interface/bag"
+import { Bag, GroupBag, ListBagOptions, UpdateBag } from "../interface/bag"
 import { ListLogOptions, Log } from "../interface/log"
 
 export const login = async (payload: LoginPayload) => {
@@ -139,17 +139,33 @@ export const getBag = async (bagId: string) => {
   return response as unknown as { bag: Bag };
 }
 
+export const getBagQrCode = async (bagId: string) => {
+  const response = await axiosInstance.get(`/orders/bag/qr-code/${bagId}`);
+  return response as unknown as { bag: GroupBag };
+}
+
 export const verifyBoxApi = async (bagId: string, orderItemId: string) => {
   const response = await axiosInstance.post(`/orders/verify-order-item`, { bagId, orderItemId });
   return response as unknown as { status: string };
 }
 
-export const verifyBagApi = async (bagId: string, basket: string) => {
-  const response = await axiosInstance.post(`/orders/verify-bag`, { bagId, basket });
+export const verifyBagApi = async (bagQrCode: string, basket: string) => {
+  const response = await axiosInstance.post(`/orders/verify-bag`, { bagQrCode, basket });
   return response as unknown as { status: string };
 }
 
 export const listLogs = async (options: ListLogOptions) => {
   const response = await axiosInstance.get(`/logs`, { params: options });
   return response as unknown as { logs: Log[], count: number };
+}
+
+export const exportHistory = async (options: ListLogOptions) => {
+  const response = await axiosInstance.get(`/logs/export`, { params: options, responseType: 'blob', });
+  return response
+}
+
+
+export const removeBag = async (bagId: string) => {
+  const response = await axiosInstance.delete(`/orders/bag/${bagId}`);
+  return response
 }

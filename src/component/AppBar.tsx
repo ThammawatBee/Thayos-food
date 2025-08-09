@@ -16,7 +16,7 @@ const AppBar = () => {
   return <Box bg='#2B3E8F' width="100%" color="white" display='flex' alignItems='center' height="70px">
     <img src={Logo} style={{ height: "70px", width: "75px" }} />
     <Box marginRight='20px'>
-      <Link to="/monitoring-status">{renderTabText('/monitoring-status', 'Monitoring Status')}</Link>
+      <Link to="/monitor">{renderTabText('/monitor', 'Monitoring Status')}</Link>
     </Box>
     <Box marginRight='20px'>
       <Link to="/order">{renderTabText('/order', 'Update Order')}</Link>
