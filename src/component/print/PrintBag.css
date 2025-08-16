@@ -1,8 +1,0 @@
-@media print {
-  @page {
-    size: 189px 113px; /* Sets the page size */
-    margin: 0; /* Removes default margins */
-    background: white;
-    background-color: white;
-  }
-}

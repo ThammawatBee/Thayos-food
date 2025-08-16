@@ -1,11 +1,12 @@
-import { displayMenu, types } from "../utils/renderOrderMenu"
-import { Bag, GroupBag } from "../interface/bag"
+import { displayMenuDays, types } from "../utils/renderOrderMenu"
+import { GroupBag, OrderItem } from "../interface/bag"
 import { getBagQrCode, verifyBagApi } from "../service/thayos-food"
 import { Box, Button, Input, Text } from "@chakra-ui/react"
-import sortBy from "lodash/sortBy"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "react-toastify"
 import SuccessToast from "./SuccessToast"
+import { DateTime } from "luxon"
+import MenuInDay from "./MenuInday"
 
 interface VerifyBasketProps {
   setMode: (value: string) => void
@@ -102,17 +103,11 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
               <Text>สถานะ: </Text>{bagData.inBasketStatus ? <Text marginLeft={"15px"} fontWeight={'medium'} color={'#06B050'}>เสร็จสิ้น</Text> : <Text marginLeft={"15px"} fontWeight={'medium'} color={'#EF5350'}>รอดำเนินการ</Text>}
             </Box>
             <Text>จัดส่ง: {bagData.deliveryAt}</Text>
-            <Text>ลูกค้า: {bagData.customerName}</Text>
+            <Text>ชื่อ: {bagData.customerName}</Text>
             <Text>ที่อยู่: {bagData.address || ''}</Text>
-            <Text marginTop={'25px'}>Menu</Text>
-            {
-              sortBy(bagData.orderItems, (item) =>
-                indexMap.has(item.type) ? indexMap.get(item.type)! : Infinity).map(orderItem =>
-                  <Box display={'flex'}>
-                    <Text>- {displayMenu(orderItem.type)}</Text> {orderItem.inBagStatus ? <Text marginLeft={"15px"} fontWeight={'medium'} color={'#06B050'}>เสร็จสิ้น</Text> : ''}
-                  </Box>
-                )
-            }
+            <Text>Remark: {bagData.order.remark}</Text>
+            <Text>Remark: {bagData.order.deliveryRemark}</Text>
+            {<MenuInDay bagData={bagData} />}
           </Box> : null
         }
       </Box>

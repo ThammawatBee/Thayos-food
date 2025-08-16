@@ -1,6 +1,5 @@
 import { Bag } from "../../interface/bag"
 import { Box } from "@chakra-ui/react"
-import "./PrintListBags.css";
 import sortBy from "lodash/sortBy";
 import { types } from "../../utils/renderOrderMenu";
 import { BoxData } from "./PrintBox";

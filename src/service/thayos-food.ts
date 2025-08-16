@@ -5,7 +5,7 @@ import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../
 import { Holiday } from "../interface/holiday"
 import { ListOrderOptions, Order, OrderItem, OrderPayload, UpdateOrderPayload } from "../interface/order"
 import { ListPaymentOptions, Payment } from "../interface/payment"
-import { Bag, GroupBag, ListBagOptions, UpdateBag } from "../interface/bag"
+import { Bag, GroupBag, ListBagOptions, OrderItemSummary, UpdateBag } from "../interface/bag"
 import { ListLogOptions, Log } from "../interface/log"
 
 export const login = async (payload: LoginPayload) => {
@@ -110,6 +110,21 @@ export const listBags = async (options: ListBagOptions) => {
 export const exportBags = async (options: ListBagOptions) => {
   const response = await axiosInstance.get(`/orders/bags/export`, { params: options, responseType: 'blob', });
   return response
+}
+
+export const listBagsForPrint = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/bags/print`, { params: options });
+  return response as unknown as { bags: GroupBag[] };
+}
+
+export const exportOrderItems = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/order-items/export`, { params: options, responseType: 'blob', });
+  return response
+}
+
+export const getOrderItemsSummary = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/order-items/summary`, { params: options });
+  return response as unknown as OrderItemSummary[]
 }
 
 export const updateBags = async (bags: { id: string, basket: string }[]) => {
