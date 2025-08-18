@@ -65,7 +65,6 @@ const useOrderStore = create<OrderState>()(
     },
     fetchOrders: async (options?: { limit?: number, offset?: number, reset?: boolean, changePage?: boolean }) => {
       set({ isLoading: true, error: null });
-      console.log('wpoewwknn')
       try {
         const limit = options?.limit || get().limit
         const offset = options?.offset || get().offset

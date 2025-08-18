@@ -1,15 +1,15 @@
 import OrderDialog from "../component/OrderDialog"
 import AppBar from "../component/AppBar"
-import { Box, Button, ButtonGroup, Field, FileUpload, FileUploadTrigger, IconButton, Input, NativeSelect, Pagination, Table, Tabs, Text } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Field, FileUpload, FileUploadTrigger, IconButton, Input, NativeSelect, Pagination, Table, Tabs, Text, useFileUpload } from "@chakra-ui/react"
 import { useEffect, useRef, useState } from "react"
 import useBagStore, { generateParam } from "../store/bagStore"
 import DatePicker from "react-datepicker"
-import { Bag, OrderItem } from "../interface/bag"
+import { Bag, GroupBag, OrderItem, OrderItemSummary } from "../interface/bag"
 import sortBy from "lodash/sortBy"
 import { FiEdit } from "react-icons/fi"
 import { LuChevronLeft, LuChevronRight, LuPrinter } from "react-icons/lu"
 import PageSizeSelect from "../component/PageSizeSelect"
-import { exportBags, listBags, updateBags } from "../service/thayos-food"
+import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags } from "../service/thayos-food"
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { toast } from "react-toastify"
@@ -26,6 +26,8 @@ import { displayMenu, renderMenu, types } from "../utils/renderOrderMenu"
 import PrintListBags from "../component/print/PrintListBags"
 import PrintBox from "../component/print/PrintBox"
 import PrintListBoxes from "../component/print/PrintListBoxes"
+import { FaRegTrashAlt } from "react-icons/fa"
+import DeleteBagDialog from "../component/DeleteBagDialog"
 
 interface UploadRow {
   id: string;
@@ -41,12 +43,12 @@ const OrderPage = () => {
   const [openBagModal, setOpenBagModal] = useState(false)
   const [openUpdateOrderModal, setOpenUpdateOrderModal] = useState(false)
   const [bag, setBag] = useState<Bag | null>(null)
-  const [printBag, setPrintBag] = useState<Bag | null>(null)
-  const [printBags, setPrintBags] = useState<Bag[] | null>(null)
+  const [printBag, setPrintBag] = useState<GroupBag | null>(null)
+  const [printBags, setPrintBags] = useState<GroupBag[] | null>(null)
   const [printBox, setPrintBox] = useState<{ bag: Bag, orderItem: OrderItem } | null>(null)
   const [printBoxes, setPrintBoxes] = useState<Bag[] | null>(null)
   const [order, setOrder] = useState<Order | null>(null)
-  const { setSearch, search, fetchBags, bags, offset, limit, onPageChange, onPageSizeChange, count } = useBagStore()
+  const { setSearch, search, fetchBags, bags, offset, limit, onPageChange, onPageSizeChange, count, getOrderItemsSummary, orderItemsSummary } = useBagStore()
   const { fetchOrders, orders, search: searchOrder, setSearch: setSearchOrder, offset: orderOffset, limit: orderLimit, count: orderCount, onPageChange: orderOnPageChange, onPageSizeChange: orderOnPageSizeChange } = useOrderStore()
   const [mode, setMode] = useState('bag')
   const [pageMode, setPageMode] = useState('Delivery')
@@ -58,12 +60,15 @@ const OrderPage = () => {
     { text: 'มื้อเย็น', value: 'preferDinner', countValue: "dinnerCount" },
     { text: 'ของว่างเย็น', value: 'preferDinnerSnack', countValue: "dinnerSnackCount" },
   ]
+  const [selectDeleteBag, setDeleteBag] = useState<Bag | null>(null)
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
 
   const indexMap = new Map(types.map((val, idx) => [val.value, idx]));
 
   useEffect(() => {
     if (!bags) {
       fetchBags()
+      getOrderItemsSummary()
     }
   }, [])
 
@@ -75,12 +80,6 @@ const OrderPage = () => {
 
 
   useEffect(() => {
-    if (printBag) {
-      printFn()
-    }
-  }, [printBag])
-
-  useEffect(() => {
     if (printBox) {
       printBoxFn()
     }
@@ -88,6 +87,12 @@ const OrderPage = () => {
 
   const printFn = useReactToPrint({
     contentRef: componentPrintBagRef,
+    pageStyle: `
+    @media print {
+      @page { size: 302.362px 150px; margin: 0; }
+      body { background: white; }
+    }
+  `,
     onAfterPrint: () => {
       setPrintBag(null)
     }
@@ -95,6 +100,18 @@ const OrderPage = () => {
 
   const printBaglist = useReactToPrint({
     contentRef: componentPrintBagsRef,
+    pageStyle: `
+    @media print {
+     @page {
+      size: 302.362px 150px;
+      margin: 0;
+      background: white;
+    }
+    .page {
+      page-break-after: always;
+      background: white;
+    }
+    }`,
     onAfterPrint: () => {
       setPrintBags(null)
     }
@@ -102,6 +119,11 @@ const OrderPage = () => {
 
   const printBoxFn = useReactToPrint({
     contentRef: componentPrintBoxRef,
+    pageStyle: `
+    @media print {
+      @page { size: 302.362px 90px; margin: 0; }
+      body { background: white; }
+    }`,
     onAfterPrint: () => {
       setPrintBox(null)
     }
@@ -109,6 +131,18 @@ const OrderPage = () => {
 
   const printBoxeslist = useReactToPrint({
     contentRef: componentPrintBoxesRef,
+    pageStyle: `
+    @media print {
+     @page {
+      size: 302.362px 90px;
+      margin: 0;
+      background: white;
+    }
+    .page {
+      page-break-after: always;
+      background: white;
+    }
+    }`,
     onAfterPrint: () => {
       setPrintBoxes(null)
     }
@@ -264,6 +298,16 @@ const OrderPage = () => {
     </Box>
   }
 
+  const renderOrderItemSummary = (menus: string[], orderItemsSummary: OrderItemSummary[]) => {
+    return menus.map(menu => {
+      const summary = orderItemsSummary.find(orderItemSummary => orderItemSummary.value === menu)
+      if (summary) {
+        return <Box marginRight={"10px"}>{summary.text} : {summary.count} </Box>
+      }
+      return <Box />
+    })
+  }
+
   return <Box>
     <AppBar />
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
@@ -332,6 +376,7 @@ const OrderPage = () => {
             </Box>
             <Button onClick={() => {
               fetchBags({ reset: true })
+              getOrderItemsSummary()
             }}>Search</Button>
           </Box>
           <Box display='flex' marginTop='20px' >
@@ -346,32 +391,60 @@ const OrderPage = () => {
                 link.click();
                 link.remove();
               }}
-            >Export as Excel</Button>
-
-            <FileUpload.Root marginLeft="20px" maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
+            >Export Bag as Excel</Button>
+            <FileUpload.Root marginLeft={"20px"} maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
               if (file.acceptedFiles?.[0]) {
-                handleUploadXlsFile(file.acceptedFiles?.[0])
+                await handleUploadXlsFile(file.acceptedFiles?.[0])
               }
             }}>
               <FileUpload.HiddenInput />
               <FileUploadTrigger asChild>
                 <Button fontWeight="bold">
-                  Upload file
+                  Upload Bag file
                 </Button>
               </FileUploadTrigger>
             </FileUpload.Root>
+            <Button bg='#385723' fontWeight="bold"
+              onClick={async () => {
+                const response = await exportOrderItems(generateParam(search) as any)
+                const url = window.URL.createObjectURL(new Blob([response as any]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${DateTime.now().toFormat('yyyy-MM-dd-hh-mm')}-order-items.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }}
+            >
+              Export Order Item
+            </Button>
           </Box>
-          <Box marginTop="15px" display={'flex'}>
-            <Button background={"#002160"} onClick={async () => {
-              const response = await listBags(generateParam(search) as any)
-              setPrintBags(response.bags)
-              setTimeout(() => printBaglist(), 500);
-            }}>Print ติดถุง</Button>
-            <Button background={"#BF5913"} marginLeft={"20px"} onClick={async () => {
-              const response = await listBags(generateParam(search) as any)
-              setPrintBoxes(response.bags)
-              setTimeout(() => printBoxeslist(), 500);
-            }}>Print ติดกล่อง</Button>
+          <Box marginTop="25px" display={'flex'} justifyContent={'space-between'} alignItems='baseline'>
+            <Box display={'flex'}>
+              <Button background={"#002160"} onClick={async () => {
+                const response = await listBagsForPrint({ ...generateParam(search) as any, getAll: true })
+                setPrintBags(response.bags)
+                setTimeout(() => printBaglist(), 500);
+              }}>Print ติดถุง</Button>
+              <Button background={"#BF5913"} marginLeft={"20px"} onClick={async () => {
+                const response = await listBags({ ...generateParam(search) as any, getAll: true })
+                setPrintBoxes(response.bags)
+                setTimeout(() => printBoxeslist(), 500);
+              }}>Print ติดกล่อง</Button>
+            </Box>
+            <Box>
+              {
+                orderItemsSummary?.length ?
+                  <Box>
+                    <Box display='flex'>
+                      {renderOrderItemSummary(["breakfast", "lunch", "dinner"], orderItemsSummary)}
+                    </Box>
+                    <Box display='flex'>
+                      {renderOrderItemSummary(["breakfastSnack", "lunchSnack", "dinnerSnack"], orderItemsSummary)}
+                    </Box>
+                  </Box> : null
+              }
+            </Box>
           </Box>
           <Tabs.Root value={mode} onValueChange={(e) => setMode(e.value)} marginTop="25px">
             <Tabs.List>
@@ -386,10 +459,13 @@ const OrderPage = () => {
                     <Table.ColumnHeader>รหัสลูกค้า</Table.ColumnHeader>
                     <Table.ColumnHeader>ชื่อลูกค้า</Table.ColumnHeader>
                     <Table.ColumnHeader>ที่อยู่</Table.ColumnHeader>
+                    <Table.ColumnHeader>Delivery Time</Table.ColumnHeader>
+                    <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                     <Table.ColumnHeader>Remark</Table.ColumnHeader>
                     <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
-                    <Table.ColumnHeader>เมณู</Table.ColumnHeader>
+                    <Table.ColumnHeader>เมนู</Table.ColumnHeader>
                     <Table.ColumnHeader>Basket</Table.ColumnHeader>
+                    <Table.ColumnHeader></Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
                   </Table.Row>
@@ -401,6 +477,8 @@ const OrderPage = () => {
                       <Table.Cell>{bag.order.customer.customerCode}</Table.Cell>
                       <Table.Cell>{bag.order.customer.fullname}</Table.Cell>
                       <Table.Cell>{bag.address || ''}</Table.Cell>
+                      <Table.Cell>{bag.order.deliveryTime ? DateTime.fromFormat(bag.order.deliveryTime, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
+                      <Table.Cell>{bag.order.deliveryTimeEnd ? DateTime.fromFormat(bag.order.deliveryTimeEnd, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
                       <Table.Cell>{bag.order.remark}</Table.Cell>
                       <Table.Cell>{bag.order.deliveryRemark}</Table.Cell>
                       <Table.Cell>{renderMenu(bag)}</Table.Cell>
@@ -422,12 +500,26 @@ const OrderPage = () => {
                           disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
                           variant="outline"
                           size={"sm"}
-                          onClick={() => {
-                            setPrintBag(bag)
+                          onClick={async () => {
+                            const response = await getBagQrCode(bag.qrCode)
+                            setPrintBag(response.bag)
+                            setTimeout(() => printFn(), 500);
                           }}
                         >
                           <LuPrinter />
                         </IconButton></Table.Cell>
+                      <Table.Cell>
+                        <IconButton
+                          variant="outline"
+                          size={"sm"}
+                          onClick={() => {
+                            setDeleteBag(bag)
+                            setOpenDeleteModal(true)
+                          }}
+                        >
+                          <FaRegTrashAlt />
+                        </IconButton>
+                      </Table.Cell>
                     </Table.Row>) : null
                   }
                 </Table.Body>
@@ -442,6 +534,8 @@ const OrderPage = () => {
                     <Table.ColumnHeader>รหัสลูกค้า</Table.ColumnHeader>
                     <Table.ColumnHeader>ชื่อลูกค้า</Table.ColumnHeader>
                     <Table.ColumnHeader>ที่อยู่</Table.ColumnHeader>
+                    <Table.ColumnHeader>Delivery Time</Table.ColumnHeader>
+                    <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                     <Table.ColumnHeader>Remark</Table.ColumnHeader>
                     <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
                     <Table.ColumnHeader>มื้ออาหาร</Table.ColumnHeader>
@@ -458,6 +552,8 @@ const OrderPage = () => {
                           <Table.Cell>{bag.order.customer.customerCode}</Table.Cell>
                           <Table.Cell>{bag.order.customer.fullname}</Table.Cell>
                           <Table.Cell>{bag.address || ''}</Table.Cell>
+                          <Table.Cell>{bag.order.deliveryTime ? DateTime.fromFormat(bag.order.deliveryTime, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
+                          <Table.Cell>{bag.order.deliveryTimeEnd ? DateTime.fromFormat(bag.order.deliveryTimeEnd, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
                           <Table.Cell>{bag.order.remark}</Table.Cell>
                           <Table.Cell>{bag.order.deliveryRemark}</Table.Cell>
                           <Table.Cell>{displayMenu(orderItem.type)}</Table.Cell>
@@ -467,7 +563,7 @@ const OrderPage = () => {
                               // disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
                               variant="outline"
                               size={"sm"}
-                              onClick={() => {
+                              onClick={async () => {
                                 setPrintBox({ bag, orderItem })
                               }}
                             >
@@ -532,9 +628,11 @@ const OrderPage = () => {
                 <Table.ColumnHeader>รหัสลูกค้า</Table.ColumnHeader>
                 <Table.ColumnHeader>ชื่อลูกค้า</Table.ColumnHeader>
                 <Table.ColumnHeader>ที่อยู่</Table.ColumnHeader>
+                <Table.ColumnHeader>Delivery Time</Table.ColumnHeader>
+                <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                 <Table.ColumnHeader>Remark</Table.ColumnHeader>
                 <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
-                <Table.ColumnHeader>เมณู</Table.ColumnHeader>
+                <Table.ColumnHeader>เมนู</Table.ColumnHeader>
                 <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
@@ -546,6 +644,8 @@ const OrderPage = () => {
                   <Table.Cell>{order.customer.customerCode}</Table.Cell>
                   <Table.Cell>{order.customer.fullname}</Table.Cell>
                   <Table.Cell>{order.address || ''}</Table.Cell>
+                  <Table.Cell>{order.deliveryTime ? DateTime.fromFormat(order.deliveryTime, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
+                  <Table.Cell>{order.deliveryTimeEnd ? DateTime.fromFormat(order.deliveryTimeEnd, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
                   <Table.Cell>{order.remark || ''}</Table.Cell>
                   <Table.Cell>{order.deliveryRemark || ''}</Table.Cell>
                   <Table.Cell>{renderOrderMenu(order)}</Table.Cell>
@@ -619,6 +719,7 @@ const OrderPage = () => {
     <OrderDialog isOpenDialog={openModal} setOpenDialog={setOpenModal} />
     {bag && <BagDialog resetBag={() => { setBag(null) }} bag={bag} isOpenDialog={openBagModal} setOpenDialog={setOpenBagModal} />}
     {order && <UpdateOrderDialog resetOrder={() => setOrder(null)} order={order} isOpenDialog={openUpdateOrderModal} setOpenDialog={setOpenUpdateOrderModal} />}
+    {selectDeleteBag && <DeleteBagDialog isOpenDialog={openDeleteModal} setOpenDialog={setOpenDeleteModal} bag={selectDeleteBag} resetBag={() => { setDeleteBag(null) }} />}
     <Box display="none">
       <PrintBag componentPrintRef={componentPrintBagRef} bag={printBag} />
     </Box>

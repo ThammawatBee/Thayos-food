@@ -1,9 +1,9 @@
 import { devtools } from "zustand/middleware";
-import { Bag, UpdateBag } from "../interface/bag";
+import { Bag, OrderItemSummary, UpdateBag } from "../interface/bag";
 import { create } from "zustand";
 import pickBy from "lodash/pickBy";
 import { DateTime } from "luxon";
-import { listBags, updateBag } from "../service/thayos-food";
+import { getOrderItemsSummary, listBags, removeBag, updateBag } from "../service/thayos-food";
 
 type BagSearch = {
   customer?: string
@@ -25,6 +25,9 @@ interface BagState {
   onPageSizeChange: (pageSize: number) => Promise<void>
   setSearch: (input: BagSearch) => void
   updateBag: (bagId: string, payload: UpdateBag) => Promise<void>
+  deleteBag: (id: string) => Promise<void>
+  getOrderItemsSummary: () => Promise<void>
+  orderItemsSummary: OrderItemSummary[]
 }
 
 export const generateParam = (search: BagSearch) => {
@@ -47,6 +50,7 @@ const useBagStore = create<BagState>()(
       endDate: new Date(Date.now() + (3600 * 1000 * 24)),
       type: 'ALL',
     },
+    orderItemsSummary: [],
     fetchBags: async (options?: { limit?: number, offset?: number, changePage?: boolean, reset?: boolean }) => {
       set({ isLoading: true, error: null });
       try {
@@ -102,6 +106,18 @@ const useBagStore = create<BagState>()(
       await updateBag(bagId, payload)
       const { fetchBags } = get()
       await fetchBags({ reset: true })
+    },
+    deleteBag: async (id: string) => {
+      const { fetchBags } = get()
+      await removeBag(id)
+      await fetchBags({ reset: true })
+    },
+    getOrderItemsSummary: async () => {
+      const { search } = get()
+      const orderItemsSummary = await getOrderItemsSummary({
+        ...generateParam(search) as any
+      })
+      set({ orderItemsSummary })
     }
   })
   ))

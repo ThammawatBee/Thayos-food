@@ -25,3 +25,5 @@ export const displayMenu = (menu: string) => {
   const type = types.find(type => type.value === menu)
   return type?.text || ''
 }
+
+export const displayMenuDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']

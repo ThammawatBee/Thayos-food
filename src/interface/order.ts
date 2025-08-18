@@ -18,6 +18,7 @@ export type OrderPayload = {
   lunchSnackCount: number
   dinnerSnackCount: number
   deliveryTime: string
+  deliveryTimeEnd: string
   deliveryOn: {
     Sunday: boolean
     Monday: boolean
@@ -55,6 +56,7 @@ export type Order = {
   lunchSnackCount: number
   dinnerSnackCount: number
   deliveryTime: string
+  deliveryTimeEnd: string
   deliveryOn: {
     Sunday: boolean
     Monday: boolean

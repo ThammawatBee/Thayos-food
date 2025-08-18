@@ -43,6 +43,10 @@ const Step2Validate = {
       otherwise: schema => schema.notRequired(),
     }),
 }
+const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
 
 
 const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
@@ -65,7 +69,16 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
     preferBreakfastSnack: Yup.boolean(),
     preferLunchSnack: Yup.boolean(),
     preferDinnerSnack: Yup.boolean(),
-    deliveryTime: Yup.string().required('Delivery time is required.'),
+    deliveryTime: Yup.string().required('Delivery time start is required.'),
+    deliveryTimeEnd: Yup.string()
+      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid end time format (HH:mm)')
+      .required('End time is required')
+      .test('is-after-start', 'End time must be after start time', function (deliveryTimeEnd?: string) {
+        const deliveryTime = (this.parent as { deliveryTime?: string } | undefined)?.deliveryTime;
+
+        if (!deliveryTime || !deliveryTimeEnd) return true;
+        return timeToMinutes(deliveryTimeEnd) > timeToMinutes(deliveryTime);
+      }),
     deliveryOn: Yup.object({
       Sunday: Yup.boolean(),
       Monday: Yup.boolean(),
@@ -202,6 +215,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       lunchSnackCount: 0,
       dinnerSnackCount: 0,
       deliveryTime: '00:00',
+      deliveryTimeEnd: '00:00',
       deliveryOn: {
         Sunday: false,
         Monday: false,
@@ -258,6 +272,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           lunchSnackCount: value.preferLunchSnack ? +value.lunchSnackCount : 0,
           dinnerSnackCount: value.preferDinnerSnack ? +value.dinnerSnackCount : 0,
           deliveryTime: value.deliveryTime,
+          deliveryTimeEnd: value.deliveryTimeEnd,
           deliveryOn: value.deliveryOn,
           startDate: startDate,
           endDate: endDate,
@@ -418,7 +433,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           <Field.ErrorText>{formik.errors.type}</Field.ErrorText>
         </Field.Root>
         <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTime && !!formik.errors.deliveryTime}>
-          <Field.Label>Delivery Time</Field.Label>
+          <Field.Label>Delivery Time Start</Field.Label>
           <DatePicker
             selected={generateDate(formik.values.deliveryTime)}
             onChange={(date) => {
@@ -442,6 +457,31 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           />
           {/* <Input value={formik?.values?.email} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("email", e.currentTarget.value) }} /> */}
           <Field.ErrorText>{formik.errors.deliveryTime}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTimeEnd && !!formik.errors.deliveryTimeEnd}>
+          <Field.Label>Delivery Time End</Field.Label>
+          <DatePicker
+            selected={generateDate(formik.values.deliveryTimeEnd)}
+            onChange={(date) => {
+              if (date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const hhmm = `${hours}:${minutes}`;
+                formik.setFieldValue("deliveryTimeEnd", hhmm)
+              }
+            }}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            timeFormat="HH:mm"
+            dateFormat="HH:mm"
+            customInput={<Input
+              readOnly={true}
+              value={formik.values.deliveryTimeEnd}
+              background={'white'} />}
+          />
+          <Field.ErrorText>{formik.errors.deliveryTimeEnd}</Field.ErrorText>
         </Field.Root>
         <Box display={'flex'} justifyContent={'space-between'}>
           <Box>
