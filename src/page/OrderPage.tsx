@@ -463,7 +463,7 @@ const OrderPage = () => {
                     <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                     <Table.ColumnHeader>Remark</Table.ColumnHeader>
                     <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
-                    <Table.ColumnHeader>เมณู</Table.ColumnHeader>
+                    <Table.ColumnHeader>เมนู</Table.ColumnHeader>
                     <Table.ColumnHeader>Basket</Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
                     <Table.ColumnHeader></Table.ColumnHeader>
@@ -632,7 +632,7 @@ const OrderPage = () => {
                 <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                 <Table.ColumnHeader>Remark</Table.ColumnHeader>
                 <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
-                <Table.ColumnHeader>เมณู</Table.ColumnHeader>
+                <Table.ColumnHeader>เมนู</Table.ColumnHeader>
                 <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
