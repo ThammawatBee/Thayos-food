@@ -28,13 +28,13 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
             <Box display={'flex'} alignItems={'center'}>
               <Box width={"10px"} height={"5px"} border={"1px solid"}></Box>
               <Box display='flex' marginLeft={"20px"}>
-                {renderOrderItem([{ type: "breakfast", text: "เช้า" }, { type: "lunch", text: "กลางวัน" }, { type: "dinner", text: "เย็น" }], bag?.orderItems || [])}
+                {renderOrderItem([{ type: "breakfast", text: "เช้า" }, { type: "lunch", text: "กลางวัน" }, { type: "dinner", text: "เย็น" }], menus || [])}
               </Box>
             </Box>
             <Box display={'flex'} alignItems={'center'}>
               <Box width={"10px"} height={"5px"} border={"1px solid"} borderRadius={"50%"}></Box>
               <Box display='flex' marginLeft={"20px"}>
-                {renderOrderItem([{ type: "breakfastSnack", text: "เช้า" }, { type: "lunchSnack", text: "กลางวัน" }, { type: "dinnerSnack", text: "เย็น" }], bag?.orderItems || [])}
+                {renderOrderItem([{ type: "breakfastSnack", text: "เช้า" }, { type: "lunchSnack", text: "กลางวัน" }, { type: "dinnerSnack", text: "เย็น" }], menus || [])}
               </Box>
             </Box>
           </Box>
