@@ -184,3 +184,8 @@ export const removeBag = async (bagId: string) => {
   const response = await axiosInstance.delete(`/orders/bag/${bagId}`);
   return response
 }
+
+export const exportDelivery = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/bags/delivery/export`, { params: options, responseType: 'blob', });
+  return response
+}

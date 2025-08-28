@@ -9,7 +9,7 @@ import sortBy from "lodash/sortBy"
 import { FiEdit } from "react-icons/fi"
 import { LuChevronLeft, LuChevronRight, LuPrinter } from "react-icons/lu"
 import PageSizeSelect from "../component/PageSizeSelect"
-import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags } from "../service/thayos-food"
+import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags ,exportDelivery} from "../service/thayos-food"
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { toast } from "react-toastify"
@@ -392,7 +392,7 @@ const OrderPage = () => {
                 link.remove();
               }}
             >Export Bag as Excel</Button>
-            <FileUpload.Root marginLeft={"20px"} maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
+            <FileUpload.Root marginLeft={"20px"}   maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
               if (file.acceptedFiles?.[0]) {
                 await handleUploadXlsFile(file.acceptedFiles?.[0])
               }
@@ -404,7 +404,7 @@ const OrderPage = () => {
                 </Button>
               </FileUploadTrigger>
             </FileUpload.Root>
-            <Button bg='#385723' fontWeight="bold"
+            <Button bg='#385723' fontWeight="bold" marginRight={"30px"}
               onClick={async () => {
                 const response = await exportOrderItems(generateParam(search) as any)
                 const url = window.URL.createObjectURL(new Blob([response as any]));
@@ -417,6 +417,20 @@ const OrderPage = () => {
               }}
             >
               Export Order Item
+            </Button>
+            <Button bg='#2F7F68' fontWeight="bold"
+              onClick={async () => {
+                const response = await exportDelivery(generateParam(search) as any)
+                const url = window.URL.createObjectURL(new Blob([response as any]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${DateTime.now().toFormat('yyyy-MM-dd-hh-mm')}-delivery.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }}
+            >
+              Export Delivery
             </Button>
           </Box>
           <Box marginTop="25px" display={'flex'} justifyContent={'space-between'} alignItems='baseline'>
@@ -497,7 +511,6 @@ const OrderPage = () => {
                         </IconButton></Table.Cell>
                       <Table.Cell>
                         <IconButton
-                          disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
                           variant="outline"
                           size={"sm"}
                           onClick={async () => {

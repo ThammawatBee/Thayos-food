@@ -9,6 +9,7 @@ export type Customer = {
   mobileNumber: string
   email: string
   deliveryTime: string
+  deliveryTimeEnd: string
   latitude: number
   longitude: number
   preferBreakfast: boolean
@@ -17,6 +18,7 @@ export type Customer = {
   preferBreakfastSnack: boolean
   preferLunchSnack: boolean
   preferDinnerSnack: boolean
+  reserveMobileNumber: string
 }
 
 export interface CreateCustomer {
@@ -37,6 +39,7 @@ export interface CreateCustomer {
   preferBreakfastSnack: boolean
   preferLunchSnack: boolean
   preferDinnerSnack: boolean
+  reserveMobileNumber: string
 }
 
 export interface ListCustomerOptions {
@@ -63,5 +66,5 @@ export interface EditCustomer {
   preferDinnerSnack: boolean
   preferBreakfastSnack: boolean
   preferLunchSnack: boolean
-
+  reserveMobileNumber: string
 }
