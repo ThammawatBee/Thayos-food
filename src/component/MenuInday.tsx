@@ -8,12 +8,11 @@ interface MenuInDayProps {
 }
 
 const MenuInDay = ({ bagData }: MenuInDayProps) => {
-  const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[]) => {
+  const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[], color: string) => {
     return menus.map(menu => {
       const orderItemByType = orderItems.filter(orderItem => orderItem.type === menu.type)
-      const alreadyInBagCount = orderItemByType.filter(orderItem => orderItem.inBagStatus)
       return <Box marginRight={"10px"}>
-        <Text color={alreadyInBagCount.length === orderItemByType.length ? '#06B050' : '#EF5350'}>{menu.text} {orderItemByType.length}</Text>
+        <Text color={color}>{menu.text} {orderItemByType.length}</Text>
       </Box>
     })
   }
@@ -21,8 +20,11 @@ const MenuInDay = ({ bagData }: MenuInDayProps) => {
     const menus = bagData?.orderItems?.filter(orderItem => DateTime.fromISO(orderItem.deliveryAt).toFormat('ccc').toUpperCase() === day)
     const backgroundInSymbol = (types: string[]) => {
       const orderItemGroupByType = menus.filter(orderItem => types.includes(orderItem.type))
-      const alreadyInBagCount = orderItemGroupByType.filter(orderItem => orderItem.inBagStatus)
-      return orderItemGroupByType.length === alreadyInBagCount.length ? '#06B050' : '#EF5350'
+      const alreadyInBagCount = orderItemGroupByType.filter(orderItem => orderItem.inBagStatus).length
+      if (!alreadyInBagCount) {
+        return '#FFD602'
+      }
+      return orderItemGroupByType.length === alreadyInBagCount ? '#06B050' : ''
     }
     if (menus?.length) {
       return <Box display={'flex'} marginTop={"20px"}>
@@ -35,13 +37,13 @@ const MenuInDay = ({ bagData }: MenuInDayProps) => {
           <Box display={'flex'} alignItems={'center'}>
             <Box width={"30px"} height={"20px"} border={"1px solid"} background={backgroundInSymbol(["breakfast", "lunch", "dinner"])}></Box>
             <Box display='flex' marginLeft={"20px"}>
-              {renderOrderItem([{ type: "breakfast", text: "เช้า" }, { type: "lunch", text: "กลางวัน" }, { type: "dinner", text: "เย็น" }], menus || [])}
+              {renderOrderItem([{ type: "breakfast", text: "เช้า" }, { type: "lunch", text: "กลางวัน" }, { type: "dinner", text: "เย็น" }], menus || [], backgroundInSymbol(["breakfast", "lunch", "dinner"]))}
             </Box>
           </Box>
           <Box display={'flex'} alignItems={'center'}>
-            <Box width={"30px"} height={"20px"} border={"1px solid"} borderRadius={"50%"} background={backgroundInSymbol(["breakfastSnack", "lunchSnack", "dinnerSnack"])}></Box>
+            <Box width={"30px"} height={"30px"} border={"1px solid"} borderRadius={"50%"} background={backgroundInSymbol(["breakfastSnack", "lunchSnack", "dinnerSnack"])}></Box>
             <Box display='flex' marginLeft={"20px"}>
-              {renderOrderItem([{ type: "breakfastSnack", text: "เช้า" }, { type: "lunchSnack", text: "กลางวัน" }, { type: "dinnerSnack", text: "เย็น" }], menus || [])}
+              {renderOrderItem([{ type: "breakfastSnack", text: "เช้า" }, { type: "lunchSnack", text: "กลางวัน" }, { type: "dinnerSnack", text: "เย็น" }], menus || [], backgroundInSymbol(["breakfastSnack", "lunchSnack", "dinnerSnack"]))}
             </Box>
           </Box>
         </Box>

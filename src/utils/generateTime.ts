@@ -6,3 +6,8 @@ export const generateDate = (time: string) => {
   dateWithTime.setHours(hours, minutes, 0, 0);
   return dateWithTime
 }
+
+export const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};

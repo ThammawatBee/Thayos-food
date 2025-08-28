@@ -8,7 +8,7 @@ import PageSizeSelect from "./PageSizeSelect";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import pickBy from "lodash/pickBy";
 import DatePicker from "react-datepicker";
-import { generateDate } from "../utils/generateTime";
+import { generateDate, timeToMinutes } from "../utils/generateTime";
 import useOrderStore from "../store/orderStore";
 import { DateTime } from 'luxon';
 import SuccessToast from "./SuccessToast";
@@ -43,10 +43,6 @@ const Step2Validate = {
       otherwise: schema => schema.notRequired(),
     }),
 }
-const timeToMinutes = (time: string) => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-};
 
 
 const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
@@ -188,6 +184,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   useEffect(() => {
     if (selectedCustomer) {
       formik.setFieldValue('deliveryTime', selectedCustomer.deliveryTime)
+      formik.setFieldValue('deliveryTimeEnd', selectedCustomer.deliveryTimeEnd)
       formik.setFieldValue('preferBreakfast', selectedCustomer.preferBreakfast)
       formik.setFieldValue('preferLunch', selectedCustomer.preferLunch)
       formik.setFieldValue('preferDinner', selectedCustomer.preferDinner)

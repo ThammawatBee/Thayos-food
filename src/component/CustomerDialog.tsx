@@ -8,7 +8,7 @@ import SuccessToast from "./SuccessToast";
 import { toast } from "react-toastify";
 import { ServiceError } from "@/interface/Error";
 import { useEffect } from "react";
-import { generateDate } from "../utils/generateTime";
+import { generateDate, timeToMinutes } from "../utils/generateTime";
 
 interface CustomerDialogProps {
   isOpenDialog: boolean
@@ -31,6 +31,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
       mobileNumber: '',
       email: '',
       deliveryTime: '00:00',
+      deliveryTimeEnd: '06:00',
       latitude: '',
       longitude: '',
       preferBreakfast: false,
@@ -39,6 +40,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
       preferBreakfastSnack: false,
       preferLunchSnack: false,
       preferDinnerSnack: false,
+      reserveMobileNumber: "",
     },
     validationSchema: Yup.object({
       customerCode: Yup.string().required('Customer code is required.'),
@@ -48,8 +50,18 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
       pinAddress: Yup.string().required('Pin Address is required.'),
       remark: Yup.string().optional().nullable(),
       mobileNumber: Yup.string().required('Mobile Number is required.').matches(/^0[689]\d{8}$/, 'Invalid phone number'),
+      reserveMobileNumber: Yup.string().optional().matches(/^0[689]\d{8}$/, 'Invalid phone number'),
       email: Yup.string().required('Email is required').email('Invalid email format'),
       deliveryTime: Yup.string().required('Delivery time is required.'),
+      deliveryTimeEnd: Yup.string()
+        .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid end time format (HH:mm)')
+        .required('End time is required')
+        .test('is-after-start', 'End time must be after start time', function (deliveryTimeEnd?: string) {
+          const deliveryTime = (this.parent as { deliveryTime?: string } | undefined)?.deliveryTime;
+
+          if (!deliveryTime || !deliveryTimeEnd) return true;
+          return timeToMinutes(deliveryTimeEnd) > timeToMinutes(deliveryTime);
+        }),
       latitude: Yup.string().optional().matches(/^\d*\.?\d*$/, 'Latitude must contain digits only'),
       longitude: Yup.string().optional().matches(/^\d*\.?\d*$/, 'Longitude number must contain digits only'),
     }),
@@ -132,6 +144,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
         mobileNumber: customer.mobileNumber,
         email: customer.email,
         deliveryTime: customer.deliveryTime,
+        deliveryTimeEnd: customer.deliveryTimeEnd || '06:00',
         latitude: `${customer.latitude}`,
         longitude: `${customer.longitude}`,
         preferBreakfast: customer.preferBreakfast,
@@ -140,6 +153,7 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
         preferBreakfastSnack: customer.preferBreakfastSnack,
         preferLunchSnack: customer.preferLunchSnack,
         preferDinnerSnack: customer.preferDinnerSnack,
+        reserveMobileNumber: customer.reserveMobileNumber,
       })
     }
   }, [customer])
@@ -193,6 +207,11 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
                 <Input value={formik?.values?.mobileNumber} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("mobileNumber", e.currentTarget.value) }} />
                 <Field.ErrorText>{formik.errors.mobileNumber}</Field.ErrorText>
               </Field.Root>
+              <Field.Root marginBottom="15px" invalid={!!formik.touched.reserveMobileNumber && !!formik.errors.reserveMobileNumber}>
+                <Field.Label>Reserve Mobile Number</Field.Label>
+                <Input value={formik?.values?.reserveMobileNumber} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("reserveMobileNumber", e.currentTarget.value) }} />
+                <Field.ErrorText>{formik.errors.reserveMobileNumber}</Field.ErrorText>
+              </Field.Root>
               <Field.Root marginBottom="15px" invalid={!!formik.touched.email && !!formik.errors.email}>
                 <Field.Label>Email</Field.Label>
                 <Input value={formik?.values?.email} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("email", e.currentTarget.value) }} />
@@ -223,6 +242,31 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
                 />
                 {/* <Input value={formik?.values?.email} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("email", e.currentTarget.value) }} /> */}
                 <Field.ErrorText>{formik.errors.deliveryTime}</Field.ErrorText>
+              </Field.Root>
+              <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTimeEnd && !!formik.errors.deliveryTimeEnd}>
+                <Field.Label>Delivery Time End</Field.Label>
+                <DatePicker
+                  selected={generateDate(formik.values.deliveryTimeEnd)}
+                  onChange={(date) => {
+                    if (date) {
+                      const hours = String(date.getHours()).padStart(2, '0');
+                      const minutes = String(date.getMinutes()).padStart(2, '0');
+                      const hhmm = `${hours}:${minutes}`;
+                      formik.setFieldValue("deliveryTimeEnd", hhmm)
+                    }
+                  }}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={15}
+                  timeCaption="Time"
+                  timeFormat="HH:mm"
+                  dateFormat="HH:mm"
+                  customInput={<Input
+                    readOnly={true}
+                    value={formik.values.deliveryTimeEnd}
+                    background={'white'} />}
+                />
+                <Field.ErrorText>{formik.errors.deliveryTimeEnd}</Field.ErrorText>
               </Field.Root>
               <Field.Root marginBottom="15px" invalid={!!formik.touched.latitude && !!formik.errors.latitude}>
                 <Field.Label>Latitude</Field.Label>
