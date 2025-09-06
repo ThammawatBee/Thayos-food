@@ -45,8 +45,11 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
   }
 
   return <Box padding={'6px'}>
-    <Box display={'flex'} justifyContent={'center'}>
+    <Box display={'flex'} alignItems={'center'} justifyContent={'center'}>
       <QRCodeSVG value={bag.qrCode} size={45} />
+      {bag.basket ? <Box marginLeft={'10px'}>
+        <Text fontSize={'15px'}>ตะกร้า:{bag.basket}</Text>
+      </Box> : <Box />}
     </Box>
     <Text fontSize={"6px"}>ส่งวันที่ {bag.deliveryAt}</Text>
     <Text fontSize={"6px"}>ชื่อ {bag.order.customer.fullname}</Text>
@@ -54,7 +57,7 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
     <Text fontSize={"6px"}>Remark: {bag.order.remark || '-'}</Text>
     <Text fontSize={"6px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
     {renderOrderMenu()}
-  </Box>
+  </Box >
 }
 
 const PrintBag = ({ componentPrintRef, bag }:

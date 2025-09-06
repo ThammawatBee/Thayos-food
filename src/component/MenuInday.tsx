@@ -22,9 +22,9 @@ const MenuInDay = ({ bagData }: MenuInDayProps) => {
       const orderItemGroupByType = menus.filter(orderItem => types.includes(orderItem.type))
       const alreadyInBagCount = orderItemGroupByType.filter(orderItem => orderItem.inBagStatus).length
       if (!alreadyInBagCount) {
-        return '#FFD602'
+        return '#EF5350'
       }
-      return orderItemGroupByType.length === alreadyInBagCount ? '#06B050' : ''
+      return orderItemGroupByType.length === alreadyInBagCount ? '#06B050' : '#FFD602'
     }
     if (menus?.length) {
       return <Box display={'flex'} marginTop={"20px"}>
