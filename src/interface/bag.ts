@@ -15,6 +15,7 @@ export type GroupBag = {
   noRemarkType: boolean
   qrCode: string
   inBasketStatus: boolean
+  basket: string | null
   order: {
     type: string
     address: string

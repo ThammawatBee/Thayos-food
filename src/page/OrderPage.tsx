@@ -9,7 +9,7 @@ import sortBy from "lodash/sortBy"
 import { FiEdit } from "react-icons/fi"
 import { LuChevronLeft, LuChevronRight, LuPrinter } from "react-icons/lu"
 import PageSizeSelect from "../component/PageSizeSelect"
-import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags ,exportDelivery} from "../service/thayos-food"
+import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags, exportDelivery } from "../service/thayos-food"
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { toast } from "react-toastify"
@@ -22,12 +22,14 @@ import get from "lodash/get"
 import UpdateOrderDialog from "../component/UpdateOrderDialog"
 import PrintBag from "../component/print/PrintBag"
 import { useReactToPrint } from "react-to-print";
-import { displayMenu, renderMenu, types } from "../utils/renderOrderMenu"
+import { dayTitleMapping, displayMenu, renderMenu, SortDate, types } from "../utils/renderOrderMenu"
 import PrintListBags from "../component/print/PrintListBags"
 import PrintBox from "../component/print/PrintBox"
 import PrintListBoxes from "../component/print/PrintListBoxes"
 import { FaRegTrashAlt } from "react-icons/fa"
 import DeleteBagDialog from "../component/DeleteBagDialog"
+import keys from "lodash/keys"
+import pickBy from "lodash/pickBy"
 
 interface UploadRow {
   id: string;
@@ -152,12 +154,29 @@ const OrderPage = () => {
 
   const renderOrderMenu = (order: Order) => {
     let text = ''
-    orderTypes.forEach(type => {
-      const prefer = get(order, type.value, false)
-      if (prefer) {
-        text = text + `${type.text}(${get(order, type.countValue, 0)}) `
-      }
-    })
+    if (order.deliveryOrderType === 'normal') {
+      orderTypes.forEach(type => {
+        const prefer = get(order, type.value, false)
+        if (prefer) {
+          text = text + `${type.text}(${get(order, type.countValue, 0)}) `
+        }
+      })
+    }
+    if (order.deliveryOrderType === 'individual') {
+      const { deliveryOn, individualDelivery } = order;
+      SortDate.forEach(day => {
+        if (get(deliveryOn, day)) {
+          text = text + `${get(dayTitleMapping, day) || ''} `
+          const orderInIndividualDelivery = get(individualDelivery, day)
+          orderTypes.forEach(type => {
+            const prefer = get(orderInIndividualDelivery, type.value, false)
+            if (prefer) {
+              text = text + `${type.text}(${get(orderInIndividualDelivery, type.countValue, 0)}) `
+            }
+          })
+        }
+      })
+    }
     return text
   }
 
@@ -392,7 +411,7 @@ const OrderPage = () => {
                 link.remove();
               }}
             >Export Bag as Excel</Button>
-            <FileUpload.Root marginLeft={"20px"}   maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
+            <FileUpload.Root marginLeft={"20px"} maxFiles={1} accept={['.xls', '.xlsx']} onFileChange={async (file) => {
               if (file.acceptedFiles?.[0]) {
                 await handleUploadXlsFile(file.acceptedFiles?.[0])
               }
@@ -645,6 +664,7 @@ const OrderPage = () => {
                 <Table.ColumnHeader>Delivery Time End</Table.ColumnHeader>
                 <Table.ColumnHeader>Remark</Table.ColumnHeader>
                 <Table.ColumnHeader>Delivery Remark</Table.ColumnHeader>
+                <Table.ColumnHeader>การจัดส่ง order</Table.ColumnHeader>
                 <Table.ColumnHeader>เมนู</Table.ColumnHeader>
                 <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
@@ -661,6 +681,7 @@ const OrderPage = () => {
                   <Table.Cell>{order.deliveryTimeEnd ? DateTime.fromFormat(order.deliveryTimeEnd, 'hh:mm:ss').toFormat('hh:mm') : ''}</Table.Cell>
                   <Table.Cell>{order.remark || ''}</Table.Cell>
                   <Table.Cell>{order.deliveryRemark || ''}</Table.Cell>
+                  <Table.Cell>{order.deliveryOrderType === 'individual' ? 'มื้อแตกต่างกัน' : 'ส่งปกติ'}</Table.Cell>
                   <Table.Cell>{renderOrderMenu(order)}</Table.Cell>
                   <Table.Cell>
                     <IconButton

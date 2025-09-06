@@ -12,6 +12,9 @@ import { generateDate, timeToMinutes } from "../utils/generateTime";
 import useOrderStore from "../store/orderStore";
 import { DateTime } from 'luxon';
 import SuccessToast from "./SuccessToast";
+import keys from "lodash/keys";
+import { dayTitleMapping } from "../utils/renderOrderMenu";
+import { get, isBoolean, mapValues } from "lodash";
 
 interface OrderDialogProps {
   isOpenDialog: boolean
@@ -56,36 +59,28 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const [formStep, setFromStep] = useState(0)
   const { createOrder } = useOrderStore()
 
-  const validateSchema = [Yup.object({
-    type: Yup.string().required('Order type is required.'),
-    address: Yup.string().required('Address is required.'),
+  const emptyIndividualDay = {
+    preferBreakfast: false,
+    preferLunch: false,
+    preferDinner: false,
+    preferBreakfastSnack: false,
+    preferLunchSnack: false,
+    preferDinnerSnack: false,
+    breakfastCount: 0,
+    lunchCount: 0,
+    dinnerCount: 0,
+    breakfastSnackCount: 0,
+    lunchSnackCount: 0,
+    dinnerSnackCount: 0,
+  }
+
+  const individualDaySchema = Yup.object({
     preferBreakfast: Yup.boolean(),
     preferLunch: Yup.boolean(),
     preferDinner: Yup.boolean(),
     preferBreakfastSnack: Yup.boolean(),
     preferLunchSnack: Yup.boolean(),
     preferDinnerSnack: Yup.boolean(),
-    deliveryTime: Yup.string().required('Delivery time start is required.'),
-    deliveryTimeEnd: Yup.string()
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid end time format (HH:mm)')
-      .required('End time is required')
-      .test('is-after-start', 'End time must be after start time', function (deliveryTimeEnd?: string) {
-        const deliveryTime = (this.parent as { deliveryTime?: string } | undefined)?.deliveryTime;
-
-        if (!deliveryTime || !deliveryTimeEnd) return true;
-        return timeToMinutes(deliveryTimeEnd) > timeToMinutes(deliveryTime);
-      }),
-    deliveryOn: Yup.object({
-      Sunday: Yup.boolean(),
-      Monday: Yup.boolean(),
-      Tuesday: Yup.boolean(),
-      Wednesday: Yup.boolean(),
-      Thursday: Yup.boolean(),
-      Friday: Yup.boolean(),
-      Saturday: Yup.boolean(),
-    }),
-    startDate: Yup.date().required('startDate is required.'),
-    endDate: Yup.date().required('endDate is required.'),
     breakfastCount: Yup.number().typeError('Must be a number')
       .when('preferBreakfast', {
         is: true,
@@ -122,14 +117,112 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
         otherwise: schema => schema.notRequired(),
       }),
+  });
+
+  const validateSchema = [Yup.object({
+    type: Yup.string().required('Order type is required.'),
+    address: Yup.string().required('Address is required.'),
+    preferBreakfast: Yup.boolean(),
+    preferLunch: Yup.boolean(),
+    preferDinner: Yup.boolean(),
+    preferBreakfastSnack: Yup.boolean(),
+    preferLunchSnack: Yup.boolean(),
+    preferDinnerSnack: Yup.boolean(),
+    deliveryOrderType: Yup.string().required('Delivery Order Type is required.'),
+    deliveryTime: Yup.string().required('Delivery time start is required.'),
+    deliveryTimeEnd: Yup.string()
+      .required('End time is required')
+      .test('is-after-start', 'End time must be after start time', function (deliveryTimeEnd?: string) {
+        const deliveryTime = (this.parent as { deliveryTime?: string } | undefined)?.deliveryTime;
+
+        if (!deliveryTime || !deliveryTimeEnd) return true;
+        return timeToMinutes(deliveryTimeEnd) > timeToMinutes(deliveryTime);
+      }),
+    deliveryOn: Yup.object({
+      Sunday: Yup.boolean(),
+      Monday: Yup.boolean(),
+      Tuesday: Yup.boolean(),
+      Wednesday: Yup.boolean(),
+      Thursday: Yup.boolean(),
+      Friday: Yup.boolean(),
+      Saturday: Yup.boolean(),
+    }),
+    individualDelivery: Yup.object({
+      Sunday: individualDaySchema,
+      Monday: individualDaySchema,
+      Tuesday: individualDaySchema,
+      Wednesday: individualDaySchema,
+      Thursday: individualDaySchema,
+      Friday: individualDaySchema,
+      Saturday: individualDaySchema,
+    }),
+    startDate: Yup.date().required('startDate is required.'),
+    endDate: Yup.date().required('endDate is required.'),
+    breakfastCount: Yup.number().typeError('Must be a number')
+      .when(
+        ['preferBreakfast', 'deliveryOrderType'],
+        {
+          is: (preferBreakfast: boolean, deliveryOrderType: string) => preferBreakfast && deliveryOrderType === 'normal',
+          then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+          otherwise: schema => schema.notRequired(),
+        }),
+    lunchCount: Yup.number().typeError('Must be a number')
+      .when(['preferLunch', 'deliveryOrderType'], {
+        is: (preferLunch: boolean, deliveryOrderType: string) => preferLunch && deliveryOrderType === 'normal',
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    dinnerCount: Yup.number().typeError('Must be a number')
+      .when(['preferDinner', 'deliveryOrderType'], {
+        is: (preferDinner: boolean, deliveryOrderType: string) => preferDinner && deliveryOrderType === 'normal',
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    breakfastSnackCount: Yup.number().typeError('Must be a number')
+      .when(['preferBreakfastSnack', 'deliveryOrderType'], {
+        is: (preferBreakfastSnack: boolean, deliveryOrderType: string) => preferBreakfastSnack && deliveryOrderType === 'normal',
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    lunchSnackCount: Yup.number().typeError('Must be a number')
+      .when(['preferLunchSnack', 'deliveryOrderType'], {
+        is: (preferLunchSnack: boolean, deliveryOrderType: string) => preferLunchSnack && deliveryOrderType === 'normal',
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    dinnerSnackCount: Yup.number().typeError('Must be a number')
+      .when(['preferDinnerSnack', 'deliveryOrderType'], {
+        is: (preferDinnerSnack: boolean, deliveryOrderType: string) => preferDinnerSnack && deliveryOrderType === 'normal',
+        then: schema => schema.required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0'),
+        otherwise: schema => schema.notRequired(),
+      }),
     mealsGroup: Yup.mixed().test(
       'at-least-one-meal',
       'At least one meal must be selected',
       function () {
-        const { preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack } = this.parent;
-        return [preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack].some(Boolean);
+        const { preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack, deliveryOrderType } = this.parent;
+        if (deliveryOrderType && deliveryOrderType !== 'normal') {
+          return true
+        }
+        return deliveryOrderType === 'normal' && [preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack].some(Boolean);
       }
     ),
+    individualMealsGroup: Yup.mixed()
+      .test(
+        'validate-individual-Meals-Group',
+        'Please correct individual order menu',
+        function () {
+          const { individualDelivery, deliveryOn, deliveryOrderType } = this.parent;
+          if (deliveryOrderType && deliveryOrderType !== 'individual') {
+            return true
+          }
+          return keys(pickBy(deliveryOn)).every(day => {
+            const individualDeliveryDay = individualDelivery[day]
+            const { preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack } = individualDeliveryDay
+            return [preferBreakfast, preferLunch, preferDinner, preferBreakfastSnack, preferLunchSnack, preferDinnerSnack].some(Boolean);
+          })
+        }
+      ),
 
 
     // ✅ Virtual field: at least one delivery day selected
@@ -226,6 +319,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       endDate: null,
       mealsGroup: undefined,
       deliveryDaysGroup: undefined,
+      individualMealsGroup: undefined,
       customerType: '',
       customerTypeInput: '',
       paymentType: '',
@@ -234,6 +328,16 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       total: 0,
       promotion: '',
       promotionInput: '',
+      deliveryOrderType: '',
+      individualDelivery: {
+        Sunday: emptyIndividualDay,
+        Monday: emptyIndividualDay,
+        Tuesday: emptyIndividualDay,
+        Wednesday: emptyIndividualDay,
+        Thursday: emptyIndividualDay,
+        Friday: emptyIndividualDay,
+        Saturday: emptyIndividualDay,
+      },
     },
 
     validationSchema: validateSchema[formStep],
@@ -278,6 +382,9 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           promotion: value.promotion === 'OTHER' ? value.promotionInput : value.promotion,
           paymentType: value.paymentType === 'OTHER' ? value.paymentTypeInput : value.paymentType,
           customerId: selectedCustomer?.id || '',
+          deliveryOrderType: value.deliveryOrderType,
+          individualDelivery: mapValues(value.individualDelivery, day => mapValues(day,
+            val => isBoolean(val) ? val : +val) as any)
         }, file)
 
         SuccessToast("Create order success")
@@ -386,100 +493,9 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
     </Box>
   }
 
-  const FormContent = () => {
-    if (formStep === 0) {
+  const deliveryOrderSection = () => {
+    if (formik.values.deliveryOrderType === 'normal') {
       return <Box>
-        <Field.Root marginBottom="15px">
-          <Field.Label>Customer Code</Field.Label>
-          <Input disabled value={selectedCustomer?.customerCode} />
-        </Field.Root>
-        <Field.Root marginBottom="15px">
-          <Field.Label>Customer Name</Field.Label>
-          <Input disabled value={selectedCustomer?.name} />
-        </Field.Root>
-        <Field.Root marginBottom="15px" invalid={!!formik.touched.address && !!formik.errors.address}>
-          <Field.Label>Address</Field.Label>
-          <Input value={formik?.values?.address} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("address", e.currentTarget.value) }} />
-          <Field.ErrorText>{formik.errors.address}</Field.ErrorText>
-        </Field.Root>
-        <Field.Root marginBottom="15px" invalid={!!formik.touched.remark && !!formik.errors.remark}>
-          <Field.Label>Remark</Field.Label>
-          <Input value={formik?.values?.remark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("remark", e.currentTarget.value) }} />
-          <Field.ErrorText>{formik.errors.remark}</Field.ErrorText>
-        </Field.Root>
-        <Field.Root marginBottom="15px" invalid={!!formik.touched.deliveryRemark && !!formik.errors.deliveryRemark}>
-          <Field.Label>Delivery Remark</Field.Label>
-          <Input value={formik?.values?.deliveryRemark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("deliveryRemark", e.currentTarget.value) }} />
-          <Field.ErrorText>{formik.errors.deliveryRemark}</Field.ErrorText>
-        </Field.Root>
-        <Field.Root marginBottom="20px" invalid={!!formik.touched.type && !!formik.errors.type}>
-          <Field.Label>Order Type</Field.Label>
-          <NativeSelect.Root>
-            <NativeSelect.Field
-              placeholder="Select order type"
-              onBlur={formik.handleBlur}
-              onChange={(e) => formik.setFieldValue("type", e.currentTarget.value)}
-              name="type"
-              value={formik.values.type}
-            >
-              <option value="HEALTHY">Healthy</option>
-              <option value="DIET">Diet</option>
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-          <Field.ErrorText>{formik.errors.type}</Field.ErrorText>
-        </Field.Root>
-        <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTime && !!formik.errors.deliveryTime}>
-          <Field.Label>Delivery Time Start</Field.Label>
-          <DatePicker
-            selected={generateDate(formik.values.deliveryTime)}
-            onChange={(date) => {
-              if (date) {
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                const hhmm = `${hours}:${minutes}`;
-                formik.setFieldValue("deliveryTime", hhmm)
-              }
-            }}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={15}
-            timeCaption="Time"
-            timeFormat="HH:mm"
-            dateFormat="HH:mm"
-            customInput={<Input
-              readOnly={true}
-              value={formik.values.deliveryTime}
-              background={'white'} />}
-          />
-          {/* <Input value={formik?.values?.email} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("email", e.currentTarget.value) }} /> */}
-          <Field.ErrorText>{formik.errors.deliveryTime}</Field.ErrorText>
-        </Field.Root>
-        <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTimeEnd && !!formik.errors.deliveryTimeEnd}>
-          <Field.Label>Delivery Time End</Field.Label>
-          <DatePicker
-            selected={generateDate(formik.values.deliveryTimeEnd)}
-            onChange={(date) => {
-              if (date) {
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                const hhmm = `${hours}:${minutes}`;
-                formik.setFieldValue("deliveryTimeEnd", hhmm)
-              }
-            }}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={15}
-            timeCaption="Time"
-            timeFormat="HH:mm"
-            dateFormat="HH:mm"
-            customInput={<Input
-              readOnly={true}
-              value={formik.values.deliveryTimeEnd}
-              background={'white'} />}
-          />
-          <Field.ErrorText>{formik.errors.deliveryTimeEnd}</Field.ErrorText>
-        </Field.Root>
         <Box display={'flex'} justifyContent={'space-between'}>
           <Box>
             <Checkbox.Root size={'md'}
@@ -587,7 +603,265 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           </Box>
         </Box>
         {formik.submitCount > 0 && formik.errors.mealsGroup && <div style={{ color: 'red' }}>{formik.errors.mealsGroup}</div>}
-        <Box>
+      </Box>
+    }
+    if (formik.values.deliveryOrderType === 'individual') {
+      const { deliveryOn } = formik.values
+      return <Box>
+        {
+          keys(pickBy(deliveryOn)).map((day) => <Box marginBottom={"20px"}>
+            <Text marginBottom={'10px'}>{get(dayTitleMapping, day) || ''}</Text>
+            <Box display={'flex'} justifyContent={'space-between'}>
+              <Box>
+                <Checkbox.Root size={'md'}
+                  // eslint-disable-next-line no-mixed-operators
+                  checked={get(formik.values.individualDelivery, [day, "preferBreakfast"], false)}
+                  onCheckedChange={(e) => formik.setFieldValue(`individualDelivery.${day}.preferBreakfast`, !!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>มื้อเช้า</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "breakfastCount"]) && !!get(formik.errors.individualDelivery, [day, "breakfastCount"])}
+                  >
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferBreakfast"])}
+                      value={get(formik?.values?.individualDelivery, [day, "breakfastCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => { formik.setFieldValue(`individualDelivery.${day}.breakfastCount`, e.currentTarget.value) }}
+                    />
+                    <Field.ErrorText>{get(formik.errors.individualDelivery, [day, "breakfastCount"])}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+              <Box>
+                <Checkbox.Root size={'md'}
+                  checked={get(formik.values.individualDelivery, [day, "preferLunch"], false)}
+                  onCheckedChange={(e) => formik.setFieldValue(`individualDelivery.${day}.preferLunch`, !!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>มื้อกลางวัน</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "lunchCount"]) && !!get(formik.errors.individualDelivery, [day, "lunchCount"])}
+                  >
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferLunch"])}
+                      value={get(formik?.values?.individualDelivery, [day, "lunchCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => { formik.setFieldValue(`individualDelivery.${day}.lunchCount`, e.currentTarget.value) }} />
+                    <Field.ErrorText>{get(formik.errors.individualDelivery, [day, "lunchCount"])}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+              <Box>
+                <Checkbox.Root size={'md'}
+                  checked={get(formik.values.individualDelivery, [day, "preferDinner"], false)}
+                  onCheckedChange={(e) =>
+                    formik.setFieldValue(`individualDelivery.${day}.preferDinner`, !!e.checked)
+                  }
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>มื้อเย็น</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "dinnerCount"]) && !!get(formik.errors.individualDelivery, [day, "dinnerCount"])}>
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferDinner"])}
+                      value={get(formik?.values?.individualDelivery, [day, "dinnerCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => { formik.setFieldValue(`individualDelivery.${day}.dinnerCount`, e.currentTarget.value) }} />
+                    <Field.ErrorText>{get(formik.errors.individualDelivery, [day, "dinnerCount"])}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+            </Box>
+            <Box display={'flex'} justifyContent={'space-between'} marginTop="10px">
+              <Box>
+                <Checkbox.Root size={'md'}
+                  checked={get(formik.values.individualDelivery, [day, "preferBreakfastSnack"], false)}
+                  onCheckedChange={(e) => formik.setFieldValue(`individualDelivery.${day}.preferBreakfastSnack`, !!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>ของว่างเช้า</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "breakfastSnackCount"]) && !!get(formik.errors.individualDelivery, [day, "breakfastSnackCount"])}
+                  >
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferBreakfastSnack"])}
+                      value={get(formik?.values?.individualDelivery, [day, "breakfastSnackCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => { formik.setFieldValue(`individualDelivery.${day}.breakfastSnackCount`, e.currentTarget.value) }} />
+                    <Field.ErrorText>{get(formik.errors.individualDelivery, [day, "breakfastSnackCount"])}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+              <Box>
+                <Checkbox.Root size={'md'}
+                  checked={get(formik.values.individualDelivery, [day, "preferLunchSnack"], false)}
+                  onCheckedChange={(e) => formik.setFieldValue(`individualDelivery.${day}.preferLunchSnack`, !!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>ของว่างกลางวัน</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "lunchSnackCount"]) && !!get(formik.errors.individualDelivery, [day, "lunchSnackCount"])}
+                  >
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferLunchSnack"])}
+                      value={get(formik?.values?.individualDelivery, [day, "lunchSnackCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => {
+                        formik.setFieldValue(`individualDelivery.${day}.lunchSnackCount`, e.currentTarget.value)
+                      }}
+                    />
+                    <Field.ErrorText>{get(formik.errors.individualDelivery, [day, "lunchSnackCount"])}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+              <Box>
+                <Checkbox.Root size={'md'}
+                  checked={get(formik.values.individualDelivery, [day, "preferDinnerSnack"], false)}
+                  onCheckedChange={(e) => formik.setFieldValue(`individualDelivery.${day}.preferDinnerSnack`, !!e.checked)}
+                >
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>ของว่างมื้อเย็น</Checkbox.Label>
+                </Checkbox.Root>
+                <Box marginTop={'20px'}>
+                  <Field.Root marginBottom="15px"
+                    invalid={!!get(formik.touched.individualDelivery, [day, "dinnerSnackCount"]) && !!get(formik.errors.individualDelivery, [day, "dinnerSnackCount"])}
+                  >
+                    <Field.Label>จำนวน</Field.Label>
+                    <Input type="number"
+                      disabled={!get(formik?.values.individualDelivery, [day, "preferDinnerSnack"])}
+                      value={get(formik?.values?.individualDelivery, [day, "dinnerSnackCount"])}
+                      onBlur={formik.handleBlur}
+                      onChange={e => { formik.setFieldValue(`individualDelivery.${day}.dinnerSnackCount`, e.currentTarget.value) }}
+                    />
+                    <Field.ErrorText>{formik.errors.dinnerSnackCount}</Field.ErrorText>
+                  </Field.Root>
+                </Box>
+              </Box>
+            </Box>
+          </Box>)
+        }
+        {formik.submitCount > 0 && formik.errors.individualMealsGroup && <div style={{ color: 'red' }}>{formik.errors.individualMealsGroup}</div>}
+      </Box>
+    }
+    return <Box />
+  }
+  const FormContent = () => {
+    if (formStep === 0) {
+      return <Box>
+        <Field.Root marginBottom="15px">
+          <Field.Label>Customer Code</Field.Label>
+          <Input disabled value={selectedCustomer?.customerCode} />
+        </Field.Root>
+        <Field.Root marginBottom="15px">
+          <Field.Label>Customer Name</Field.Label>
+          <Input disabled value={selectedCustomer?.name} />
+        </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.address && !!formik.errors.address}>
+          <Field.Label>Address</Field.Label>
+          <Input value={formik?.values?.address} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("address", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.address}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.remark && !!formik.errors.remark}>
+          <Field.Label>Remark</Field.Label>
+          <Input value={formik?.values?.remark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("remark", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.remark}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.deliveryRemark && !!formik.errors.deliveryRemark}>
+          <Field.Label>Delivery Remark</Field.Label>
+          <Input value={formik?.values?.deliveryRemark} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("deliveryRemark", e.currentTarget.value) }} />
+          <Field.ErrorText>{formik.errors.deliveryRemark}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="20px" invalid={!!formik.touched.type && !!formik.errors.type}>
+          <Field.Label>Order Type</Field.Label>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              placeholder="Select order type"
+              onBlur={formik.handleBlur}
+              onChange={(e) => formik.setFieldValue("type", e.currentTarget.value)}
+              name="type"
+              value={formik.values.type}
+            >
+              <option value="HEALTHY">Healthy</option>
+              <option value="DIET">Diet</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Field.ErrorText>{formik.errors.type}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTime && !!formik.errors.deliveryTime}>
+          <Field.Label>Delivery Time Start</Field.Label>
+          <DatePicker
+            selected={generateDate(formik.values.deliveryTime)}
+            onChange={(date) => {
+              if (date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const hhmm = `${hours}:${minutes}`;
+                formik.setFieldValue("deliveryTime", hhmm)
+              }
+            }}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            timeFormat="HH:mm"
+            dateFormat="HH:mm"
+            customInput={<Input
+              readOnly={true}
+              value={formik.values.deliveryTime}
+              background={'white'} />}
+          />
+          {/* <Input value={formik?.values?.email} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("email", e.currentTarget.value) }} /> */}
+          <Field.ErrorText>{formik.errors.deliveryTime}</Field.ErrorText>
+        </Field.Root>
+        <Field.Root marginBottom="25px" invalid={!!formik.touched.deliveryTimeEnd && !!formik.errors.deliveryTimeEnd}>
+          <Field.Label>Delivery Time End</Field.Label>
+          <DatePicker
+            selected={generateDate(formik.values.deliveryTimeEnd)}
+            onChange={(date) => {
+              if (date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const hhmm = `${hours}:${minutes}`;
+                formik.setFieldValue("deliveryTimeEnd", hhmm)
+              }
+            }}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            timeFormat="HH:mm"
+            dateFormat="HH:mm"
+            customInput={<Input
+              readOnly={true}
+              value={formik.values.deliveryTimeEnd}
+              background={'white'} />}
+          />
+          <Field.ErrorText>{formik.errors.deliveryTimeEnd}</Field.ErrorText>
+        </Field.Root>
+        <Box marginBottom={"20px"}>
           <Field.Root invalid={(!!formik.touched.startDate && !!formik.errors.startDate) || (!!formik.touched.endDate && !!formik.errors.endDate)}>
             <Field.Label>วันที่จัดส่ง</Field.Label>
             <DatePicker
@@ -614,6 +888,23 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             <Field.ErrorText>{formik.errors.endDate}</Field.ErrorText>
           </Field.Root>
         </Box>
+        <Field.Root marginBottom="15px" invalid={!!formik.touched.deliveryOrderType && !!formik.errors.deliveryOrderType}>
+          <Field.Label>การจัดส่ง order</Field.Label>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              placeholder="เลือกการจัดส่ง order"
+              onBlur={formik.handleBlur}
+              onChange={(e) => formik.setFieldValue("deliveryOrderType", e.currentTarget.value)}
+              name="role"
+              value={formik.values.deliveryOrderType}
+            >
+              <option value="normal">ส่งปกติ</option>
+              <option value="individual">มื้อแตกต่างกัน</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <Field.ErrorText>{formik.errors.deliveryOrderType}</Field.ErrorText>
+        </Field.Root>
         <Box marginBottom="15px" marginTop="15px">
           <Text fontWeight={'medium'}>วันที่ต้องส่งทุกๆ</Text>
           <Box marginTop={'10px'} display='flex' justifyContent={'space-between'} width={'100%'}>
@@ -670,6 +961,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             <Box color={'red'} marginTop={'10px'}>{formik.errors.deliveryDaysGroup}</Box>
           )}
         </Box>
+        {deliveryOrderSection()}
       </Box>
     }
     return <Box>

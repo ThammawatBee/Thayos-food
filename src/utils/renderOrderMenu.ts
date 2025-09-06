@@ -27,3 +27,15 @@ export const displayMenu = (menu: string) => {
 }
 
 export const displayMenuDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+
+export const SortDate = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+export const dayTitleMapping = {
+  Sunday: "วันอาทิตย์",
+  Monday: "วันจันทร์",
+  Tuesday: "วันอังคาร",
+  Wednesday: "วันพุธ",
+  Thursday: "วันพฤหัสบดี",
+  Friday: "วันศุกร์",
+  Saturday: "วันเสาร์",
+}

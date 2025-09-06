@@ -1,5 +1,20 @@
 import { Customer } from "./customer"
 
+type IndividualOrder = {
+  preferBreakfast: boolean
+  preferLunch: boolean
+  preferDinner: boolean
+  preferBreakfastSnack: boolean
+  preferLunchSnack: boolean
+  preferDinnerSnack: boolean
+  breakfastCount: number
+  lunchCount: number
+  dinnerCount: number
+  breakfastSnackCount: number
+  lunchSnackCount: number
+  dinnerSnackCount: number
+}
+
 export type OrderPayload = {
   address: string
   remark: string
@@ -19,6 +34,7 @@ export type OrderPayload = {
   dinnerSnackCount: number
   deliveryTime: string
   deliveryTimeEnd: string
+  deliveryOrderType: string
   deliveryOn: {
     Sunday: boolean
     Monday: boolean
@@ -35,6 +51,15 @@ export type OrderPayload = {
   total: number
   promotion: string
   customerId: string
+  individualDelivery: {
+    Sunday: IndividualOrder,
+    Monday: IndividualOrder,
+    Tuesday: IndividualOrder,
+    Wednesday: IndividualOrder,
+    Thursday: IndividualOrder,
+    Friday: IndividualOrder,
+    Saturday: IndividualOrder,
+  },
 }
 
 export type Order = {
@@ -57,6 +82,7 @@ export type Order = {
   dinnerSnackCount: number
   deliveryTime: string
   deliveryTimeEnd: string
+  deliveryOrderType: string
   deliveryOn: {
     Sunday: boolean
     Monday: boolean
@@ -73,6 +99,15 @@ export type Order = {
   total: number
   promotion: string
   customer: Customer
+  individualDelivery: {
+    Sunday: IndividualOrder,
+    Monday: IndividualOrder,
+    Tuesday: IndividualOrder,
+    Wednesday: IndividualOrder,
+    Thursday: IndividualOrder,
+    Friday: IndividualOrder,
+    Saturday: IndividualOrder,
+  },
 }
 
 export type OrderItem = {
@@ -105,4 +140,13 @@ export type UpdateOrderPayload = {
   breakfastSnackCount: number
   lunchSnackCount: number
   dinnerSnackCount: number
+  individualDelivery: {
+    Sunday: IndividualOrder,
+    Monday: IndividualOrder,
+    Tuesday: IndividualOrder,
+    Wednesday: IndividualOrder,
+    Thursday: IndividualOrder,
+    Friday: IndividualOrder,
+    Saturday: IndividualOrder,
+  },
 }
