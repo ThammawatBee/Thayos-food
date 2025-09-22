@@ -529,7 +529,7 @@ const OrderPage = () => {
                           <FiEdit />
                         </IconButton></Table.Cell>
                       <Table.Cell>
-                        <IconButton
+                        {bag.noRemarkType ? <Box /> : <IconButton
                           variant="outline"
                           size={"sm"}
                           onClick={async () => {
@@ -539,7 +539,8 @@ const OrderPage = () => {
                           }}
                         >
                           <LuPrinter />
-                        </IconButton></Table.Cell>
+                        </IconButton>}
+                      </Table.Cell>
                       <Table.Cell>
                         <IconButton
                           variant="outline"
@@ -591,16 +592,19 @@ const OrderPage = () => {
                           <Table.Cell>{displayMenu(orderItem.type)}</Table.Cell>
                           <Table.Cell>{bag.basket || ''}</Table.Cell>
                           <Table.Cell>
-                            <IconButton
-                              // disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
-                              variant="outline"
-                              size={"sm"}
-                              onClick={async () => {
-                                setPrintBox({ bag, orderItem })
-                              }}
-                            >
-                              <LuPrinter />
-                            </IconButton></Table.Cell>
+                            {bag.noRemarkType ? <Box /> :
+                              <IconButton
+                                // disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
+                                variant="outline"
+                                size={"sm"}
+                                onClick={async () => {
+                                  setPrintBox({ bag, orderItem })
+                                }}
+                              >
+                                <LuPrinter />
+                              </IconButton>
+                            }
+                          </Table.Cell>
                         </Table.Row>
                       )) : null
                   }

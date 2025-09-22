@@ -20,6 +20,9 @@ const MenuInDay = ({ bagData }: MenuInDayProps) => {
     const menus = bagData?.orderItems?.filter(orderItem => DateTime.fromISO(orderItem.deliveryAt).toFormat('ccc').toUpperCase() === day)
     const backgroundInSymbol = (types: string[]) => {
       const orderItemGroupByType = menus.filter(orderItem => types.includes(orderItem.type))
+      if (!orderItemGroupByType.length) {
+        return '#06B050'
+      }
       const alreadyInBagCount = orderItemGroupByType.filter(orderItem => orderItem.inBagStatus).length
       if (!alreadyInBagCount) {
         return '#EF5350'
