@@ -91,7 +91,7 @@ const OrderPage = () => {
     contentRef: componentPrintBagRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 150px; margin: 0; }
+      @page { size: 302.362px 160px; margin: 0; }
       body { background: white; }
     }
   `,
@@ -105,7 +105,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 150px;
+      size: 302.362px 160px;
       margin: 0;
       background: white;
     }
