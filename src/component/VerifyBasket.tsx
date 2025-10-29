@@ -1,12 +1,12 @@
-import { displayMenuDays, types } from "../utils/renderOrderMenu"
-import { GroupBag, OrderItem } from "../interface/bag"
+import { types } from "../utils/renderOrderMenu"
+import { GroupBag } from "../interface/bag"
 import { getBagQrCode, verifyBagApi } from "../service/thayos-food"
-import { Box, Button, Input, Text } from "@chakra-ui/react"
+import { Box, Button, IconButton, Input, Text } from "@chakra-ui/react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "react-toastify"
 import SuccessToast from "./SuccessToast"
-import { DateTime } from "luxon"
 import MenuInDay from "./MenuInday"
+import { IoIosClose } from "react-icons/io"
 
 interface VerifyBasketProps {
   setMode: (value: string) => void
@@ -17,6 +17,7 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
   const [basket, setBasket] = useState("")
   const [bagData, setBagData] = useState<GroupBag | null>(null)
   const inputRef = useRef<HTMLInputElement>(null);
+  const bagInputRef = useRef<HTMLInputElement>(null);
   const indexMap = new Map(types.map((val, idx) => [val.value, idx]));
 
   const getBagData = async () => {
@@ -93,8 +94,18 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
     }}>Back</Button>
     <Box marginTop={"35px"}>
       <Box textStyle="lg" display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-        <Text textStyle="lg">ถุง</Text>
-        <Input fontSize={'lg'} width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
+        <Box display={'flex'} alignItems={'center'}>
+          <Text textStyle="lg">ถุง</Text>
+          {bagData ? <IconButton marginLeft={'15px'} onClick={() => {
+            setBag("")
+            setBagData(null)
+            setBasket("")
+            bagInputRef.current?.focus();
+          }}>
+            <IoIosClose />
+          </IconButton> : <Box />}
+        </Box>
+        <Input ref={bagInputRef} fontSize={'lg'} width={"80%"} value={bag} onChange={e => { setBag(e.currentTarget.value) }} autoFocus />
       </Box>
       <Box textStyle="lg" marginTop={"30px"} padding={"20px"} minHeight={"200px"} borderWidth="1px">
         {
@@ -106,7 +117,7 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
             <Text>ชื่อ: {bagData.customerName}</Text>
             <Text>ที่อยู่: {bagData.address || ''}</Text>
             <Text>Remark: {bagData.order.remark}</Text>
-            <Text>Remark: {bagData.order.deliveryRemark}</Text>
+            <Text>Delivery Remark: {bagData.order.deliveryRemark}</Text>
             {<MenuInDay bagData={bagData} />}
           </Box> : null
         }

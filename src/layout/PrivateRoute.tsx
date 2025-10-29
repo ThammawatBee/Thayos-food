@@ -1,12 +1,13 @@
 import useAuthStore from '../store/authStore';
 import { JSX, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Spinner, Text } from "@chakra-ui/react"
 
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { getProfile, profile } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation();
   const checkAuth = async () => {
     if (!profile) {
       try {
@@ -20,11 +21,16 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     checkAuth();
   }, [])
 
+  const adminPrivatePath = ['/user-management', '/payment', '/verify']
+
   useEffect(() => {
+    if (profile && profile.role === 'user' && adminPrivatePath.includes(location.pathname)) {
+      navigate('/', { replace: true })
+    }
     if (profile && profile.role === 'checker') {
       navigate('/verify', { replace: true })
     }
-  }, [profile])
+  }, [profile, location?.pathname])
 
 
   if (profile === null) {

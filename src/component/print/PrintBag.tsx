@@ -54,6 +54,7 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
     <Text fontSize={"6px"}>ส่งวันที่ {bag.deliveryAt}</Text>
     <Text fontSize={"6px"}>ชื่อ {bag.order.customer.fullname}</Text>
     <Text fontSize={"6px"}>ที่อยู่: {bag.address}</Text>
+    <Text fontSize={"6px"}>Delivery Time: {bag.order.deliveryTime} - {bag.order.deliveryTimeEnd}</Text>
     <Text fontSize={"6px"}>Remark: {bag.order.remark || '-'}</Text>
     <Text fontSize={"6px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
     {renderOrderMenu()}
