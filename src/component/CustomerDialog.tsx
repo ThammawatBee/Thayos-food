@@ -344,10 +344,10 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
               </Box>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button variant="outline" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
+              <Button variant="outline" disabled={formik.isSubmitting} onClick={() => setOpenDialog(false)}>Cancel</Button>
+              <Button type="submit" loading={formik.isSubmitting}>Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger onClick={() => setOpenDialog(false)}>
+            <Dialog.CloseTrigger disabled={formik.isSubmitting} onClick={() => setOpenDialog(false)}>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </form>

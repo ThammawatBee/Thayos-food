@@ -13,7 +13,6 @@ interface DeleteBagDialogProps {
 
 
 const DeleteBagDialog = ({ isOpenDialog, setOpenDialog, bag, resetBag }: DeleteBagDialogProps) => {
-  console.log('bag', bag)
   const { deleteBag } = useBagStore()
   return <Dialog.Root lazyMount open={isOpenDialog} size={"lg"} onExitComplete={() => {
     resetBag()

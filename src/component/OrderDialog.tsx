@@ -1103,6 +1103,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             <Dialog.ActionTrigger>
               <Button variant="outline"
                 type="button"
+                disabled={formik.isSubmitting}
                 onClick={() => {
                   if (mode === 'form' && formStep === 0) {
                     setMode("customer")
@@ -1112,16 +1113,18 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
                   }
                 }}>Back</Button>
             </Dialog.ActionTrigger>
-            <Button onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
+            <Button loading={formik.isSubmitting} onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
           </Dialog.Footer> : null}
-          <Dialog.CloseTrigger onClick={() => {
-            setOpenDialog(false)
-            formik.resetForm()
-            setMode('customer')
-            setFromStep(0)
-            setSelectedCustomer(null)
-          }
-          }>
+          <Dialog.CloseTrigger
+            disabled={formik.isSubmitting}
+            onClick={() => {
+              setOpenDialog(false)
+              formik.resetForm()
+              setMode('customer')
+              setFromStep(0)
+              setSelectedCustomer(null)
+            }
+            }>
             <CloseButton size="sm" />
           </Dialog.CloseTrigger>
         </Dialog.Content>

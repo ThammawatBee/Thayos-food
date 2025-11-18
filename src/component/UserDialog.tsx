@@ -153,10 +153,10 @@ const UserDialog = ({ isOpenDialog, setOpenDialog, user, resetUser }: UserDialog
               </Field.Root>
             </Dialog.Body>
             <Dialog.Footer>
-              <Button variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
+              <Button disabled={formik.isSubmitting} variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
+              <Button loading={formik.isSubmitting} type="submit">Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger type="button" onClick={() => setOpenDialog(false)}>
+            <Dialog.CloseTrigger disabled={formik.isSubmitting} type="button" onClick={() => setOpenDialog(false)}>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </form>

@@ -1,13 +1,14 @@
 import { Box, Button, Input, Text } from "@chakra-ui/react"
 import DatePicker from "react-datepicker"
 import YearCalendar from "./YearCalendar"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import useHolidayStore from "../store/holidayStore"
 import SuccessToast from "./SuccessToast"
 import flatMap from "lodash/flatMap"
 
 const HolidayCalendar = () => {
   const { holidays, fetchHolidays, year, setYear, holidayTask, updateHolidayTask, submitHoliday } = useHolidayStore()
+  const [loading, setLoading] = useState(false)
   useEffect(() => {
     if (!holidays[year]) {
       fetchHolidays(year)
@@ -42,10 +43,12 @@ const HolidayCalendar = () => {
       highlightColor={'#1A69AA'}
     />
     <Box display={'flex'} justifyContent={'end'} marginTop={'30px'} onClick={async () => {
+      setLoading(true)
       const originalHolidays = flatMap(holidays)
       const toAdd = holidayTask.filter(d => !originalHolidays.includes(d))
       const toDelete = originalHolidays.filter(d => !holidayTask.includes(d))
       await submitHoliday(toAdd, toDelete)
+      setLoading(false)
       SuccessToast("Update Holidays success")
     }}>
       <Button>Confirm Holiday</Button>

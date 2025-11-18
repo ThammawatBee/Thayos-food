@@ -274,10 +274,10 @@ const BagDialog = ({ isOpenDialog, setOpenDialog, bag, resetBag }: BagDialogProp
               {formik.submitCount > 0 && formik.errors.mealsGroup && <div style={{ color: 'red' }}>{formik.errors.mealsGroup}</div>}
             </Dialog.Body>
             <Dialog.Footer>
-              <Button variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
+              <Button variant="outline" type="button" disabled={formik.isSubmitting} onClick={() => setOpenDialog(false)}>Cancel</Button>
+              <Button type="submit" loading={formik.isSubmitting}>Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger type="button" onClick={() => setOpenDialog(false)}>
+            <Dialog.CloseTrigger disabled={formik.isSubmitting} type="button" onClick={() => setOpenDialog(false)}>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </form>

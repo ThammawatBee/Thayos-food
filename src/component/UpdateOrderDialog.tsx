@@ -519,10 +519,10 @@ const UpdateOrderDialog = ({ isOpenDialog, setOpenDialog, order, resetOrder }: U
               {deliveryOrderSection()}
             </Dialog.Body>
             <Dialog.Footer>
-              <Button variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
+              <Button disabled={formik.isSubmitting} variant="outline" type="button" onClick={() => setOpenDialog(false)}>Cancel</Button>
+              <Button type="submit" loading={formik.isSubmitting}>Save</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger type="button" onClick={() => setOpenDialog(false)}>
+            <Dialog.CloseTrigger disabled={formik.isSubmitting} type="button" onClick={() => setOpenDialog(false)}>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </form>
