@@ -57,6 +57,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const [limit, setLimit] = useState(10)
   const [offset, setOffset] = useState(0)
   const [formStep, setFromStep] = useState(0)
+  const [isSkipOrderAttract, setIsSkipOrderAttract] = useState(false)
   const { createOrder } = useOrderStore()
 
   const emptyIndividualDay = {
@@ -1077,6 +1078,58 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           <Input value={formik?.values?.promotionInput} onBlur={formik.handleBlur} onChange={e => { formik.setFieldValue("promotionInput", e.currentTarget.value) }} />
           <Field.ErrorText>{formik.errors.promotionInput}</Field.ErrorText>
         </Field.Root>}
+      <Button
+        marginTop={"20px"}
+        onClick={async () => {
+          setIsSkipOrderAttract(true)
+          const value = formik.values
+          const startDate = value.startDate ? DateTime.fromJSDate(value.startDate).toISODate() : ''
+          const endDate = value.endDate ? DateTime.fromJSDate(value.endDate).toISODate() : ''
+          await createOrder({
+            address: value.address,
+            remark: value.remark,
+            deliveryRemark: value.deliveryRemark,
+            type: value.type,
+            preferBreakfast: value.preferBreakfast,
+            preferLunch: value.preferLunch,
+            preferDinner: value.preferDinner,
+            preferBreakfastSnack: value.preferBreakfastSnack,
+            preferLunchSnack: value.preferLunchSnack,
+            preferDinnerSnack: value.preferDinnerSnack,
+            breakfastCount: value.preferBreakfast ? +value.breakfastCount : 0,
+            lunchCount: value.preferLunch ? +value.lunchCount : 0,
+            dinnerCount: value.preferDinner ? +value.dinnerCount : 0,
+            breakfastSnackCount: value.preferBreakfastSnack ? +value.breakfastSnackCount : 0,
+            lunchSnackCount: value.preferLunchSnack ? +value.lunchSnackCount : 0,
+            dinnerSnackCount: value.preferDinnerSnack ? +value.dinnerSnackCount : 0,
+            deliveryTime: value.deliveryTime,
+            deliveryTimeEnd: value.deliveryTimeEnd,
+            deliveryOn: value.deliveryOn,
+            startDate: startDate,
+            endDate: endDate,
+            customerType: null,
+            total: 0,
+            promotion: null,
+            paymentType: null,
+            customerId: selectedCustomer?.id || '',
+            deliveryOrderType: value.deliveryOrderType,
+            individualDelivery: mapValues(value.individualDelivery, day => mapValues(day,
+              val => isBoolean(val) ? val : +val) as any)
+          }, null)
+
+          SuccessToast("Create order success")
+          setOpenDialog(false)
+          formik.resetForm()
+          setFromStep(0)
+          setMode('customer')
+          setSelectedCustomer(null)
+        }}
+        variant="outline"
+        loading={isSkipOrderAttract}
+      >
+
+        Skip Attach Slip
+      </Button>
     </Box >
   }
 
@@ -1103,7 +1156,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             <Dialog.ActionTrigger>
               <Button variant="outline"
                 type="button"
-                disabled={formik.isSubmitting}
+                disabled={formik.isSubmitting || isSkipOrderAttract}
                 onClick={() => {
                   if (mode === 'form' && formStep === 0) {
                     setMode("customer")
@@ -1113,10 +1166,10 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
                   }
                 }}>Back</Button>
             </Dialog.ActionTrigger>
-            <Button loading={formik.isSubmitting} onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
+            <Button loading={formik.isSubmitting || isSkipOrderAttract} onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
           </Dialog.Footer> : null}
           <Dialog.CloseTrigger
-            disabled={formik.isSubmitting}
+            disabled={formik.isSubmitting || isSkipOrderAttract}
             onClick={() => {
               setOpenDialog(false)
               formik.resetForm()

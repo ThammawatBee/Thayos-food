@@ -46,10 +46,10 @@ export type OrderPayload = {
   }
   startDate: string | null
   endDate: string | null
-  customerType: string
-  paymentType: string
+  customerType: string | null
+  paymentType: string | null
   total: number
-  promotion: string
+  promotion: string | null
   customerId: string
   individualDelivery: {
     Sunday: IndividualOrder,
@@ -94,10 +94,10 @@ export type Order = {
   }
   startDate: string | null
   endDate: string | null
-  customerType: string
-  paymentType: string
+  customerType: string | null
+  paymentType: string | null
   total: number
-  promotion: string
+  promotion: string | null
   customer: Customer
   individualDelivery: {
     Sunday: IndividualOrder,
