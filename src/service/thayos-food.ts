@@ -189,3 +189,8 @@ export const exportDelivery = async (options: ListBagOptions) => {
   const response = await axiosInstance.get(`/orders/bags/delivery/export`, { params: options, responseType: 'blob', });
   return response
 }
+
+export const exportDailyOrders = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/daily/order-items`, { params: options, responseType: 'blob', });
+  return response
+}

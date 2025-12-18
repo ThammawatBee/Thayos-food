@@ -9,7 +9,7 @@ import sortBy from "lodash/sortBy"
 import { FiEdit } from "react-icons/fi"
 import { LuChevronLeft, LuChevronRight, LuPrinter } from "react-icons/lu"
 import PageSizeSelect from "../component/PageSizeSelect"
-import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags, exportDelivery } from "../service/thayos-food"
+import { exportBags, exportOrderItems, getBagQrCode, listBags, listBagsForPrint, updateBags, exportDelivery, exportDailyOrders } from "../service/thayos-food"
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { toast } from "react-toastify"
@@ -28,9 +28,6 @@ import PrintBox from "../component/print/PrintBox"
 import PrintListBoxes from "../component/print/PrintListBoxes"
 import { FaRegTrashAlt } from "react-icons/fa"
 import DeleteBagDialog from "../component/DeleteBagDialog"
-import keys from "lodash/keys"
-import pickBy from "lodash/pickBy"
-
 interface UploadRow {
   id: string;
   Basket: string;
@@ -91,7 +88,7 @@ const OrderPage = () => {
     contentRef: componentPrintBagRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 160px; margin: 0; }
+      @page { size: 302.362px 250px; margin: 0; }
       body { background: white; }
     }
   `,
@@ -105,7 +102,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 160px;
+      size: 302.362px 250px;
       margin: 0;
       background: white;
     }
@@ -123,7 +120,7 @@ const OrderPage = () => {
     contentRef: componentPrintBoxRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 90px; margin: 0; }
+      @page { size: 302.362px 100px; margin: 0; }
       body { background: white; }
     }`,
     onAfterPrint: () => {
@@ -136,7 +133,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 90px;
+      size: 302.362px 100px;
       margin: 0;
       background: white;
     }
@@ -464,6 +461,16 @@ const OrderPage = () => {
                 setPrintBoxes(response.bags)
                 setTimeout(() => printBoxeslist(), 500);
               }}>Print ติดกล่อง</Button>
+              <Button background={"#000000"} marginLeft={"20px"} onClick={async () => {
+                const response = await exportDailyOrders(generateParam(search) as any)
+                const url = window.URL.createObjectURL(new Blob([response as any]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${DateTime.now().toFormat('yyyy-MM-dd-hh-mm')}-daily-order.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }}>Export หมายเหตุสำหรับครัวร้อน</Button>
             </Box>
             <Box>
               {

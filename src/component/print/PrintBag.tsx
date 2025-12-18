@@ -46,17 +46,18 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
 
   return <Box padding={'6px'}>
     <Box display={'flex'} alignItems={'center'} justifyContent={'center'}>
+      <Text fontWeight={'semibold'} fontSize={'30px'} marginRight={"15px"}>{bag.order.type === "HEALTHY" ? 'H' : 'D'}</Text>
       <QRCodeSVG value={bag.qrCode} size={45} />
       {bag.basket ? <Box marginLeft={'10px'}>
         <Text fontSize={'15px'}>ตะกร้า:{bag.basket}</Text>
       </Box> : <Box />}
     </Box>
-    <Text fontSize={"6px"}>ส่งวันที่ {bag.deliveryAt}</Text>
-    <Text fontSize={"6px"}>ชื่อ {bag.order.customer.fullname}</Text>
-    <Text fontSize={"6px"}>ที่อยู่: {bag.address}</Text>
-    <Text fontSize={"6px"}>Delivery Time: {bag.order.deliveryTime} - {bag.order.deliveryTimeEnd}</Text>
-    <Text fontSize={"6px"}>Remark: {bag.order.remark || '-'}</Text>
-    <Text fontSize={"6px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
+    <Text fontSize={"6.5px"}>ส่งวันที่ {bag.deliveryAt}</Text>
+    <Text fontSize={"6.5px"}>ชื่อ {bag.order.customer.fullname}</Text>
+    <Text fontSize={"6.5px"}>ที่อยู่: {bag.address}</Text>
+    <Text fontSize={"6.5px"}>Delivery Time: {bag.order.deliveryTime} - {bag.order.deliveryTimeEnd}</Text>
+    <Text fontSize={"6.5px"}>Remark: {bag.order.remark || '-'}</Text>
+    <Text fontSize={"6.5px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
     {renderOrderMenu()}
   </Box >
 }

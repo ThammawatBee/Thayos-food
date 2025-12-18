@@ -11,11 +11,12 @@ export const BoxData = ({ bag, orderItem }: { bag: Bag, orderItem: OrderItem }) 
   }
   return <Box padding={'6px'}>
     <Box display={'flex'} justifyContent={'center'}>
+      <Text fontWeight={'semibold'} fontSize={'30px'} marginRight={"15px"}>{bag.order.type === "HEALTHY" ? 'H' : 'D'}</Text>
       <QRCodeSVG value={bag.noRemarkType ? orderItem.qrcode : orderItem.id} size={45} />
     </Box>
-    <Text fontSize={"6px"}>{DateTime.fromISO(bag.deliveryAt).toFormat('ccc').toUpperCase() } {renderMenuText()}</Text>
-    <Text fontSize={"6px"}>ชื่อ {bag.order.customer.fullname}</Text>
-    <Text fontSize={"6px"}>Remark: {bag.order.remark || '-'}</Text>
+    <Text fontSize={"6.5px"}>{DateTime.fromISO(bag.deliveryAt).toFormat('ccc').toUpperCase()} {renderMenuText()}</Text>
+    <Text fontSize={"6.5px"}>ชื่อ {bag.order.customer.fullname}</Text>
+    <Text fontSize={"6.5px"}>Remark: {bag.order.remark || '-'}</Text>
   </Box>
 }
 
