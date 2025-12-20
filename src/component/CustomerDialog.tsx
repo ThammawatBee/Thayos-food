@@ -54,7 +54,6 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
       email: Yup.string().required('Email is required').email('Invalid email format'),
       deliveryTime: Yup.string().required('Delivery time is required.'),
       deliveryTimeEnd: Yup.string()
-        .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid end time format (HH:mm)')
         .required('End time is required')
         .test('is-after-start', 'End time must be after start time', function (deliveryTimeEnd?: string) {
           const deliveryTime = (this.parent as { deliveryTime?: string } | undefined)?.deliveryTime;
@@ -130,7 +129,6 @@ const CustomerDialog = ({ isOpenDialog, setOpenDialog, customer, resetCustomer }
       }
     },
   })
-
 
   useEffect(() => {
     if (customer) {

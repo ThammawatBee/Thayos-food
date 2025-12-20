@@ -282,6 +282,9 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       formik.setFieldValue('preferBreakfast', selectedCustomer.preferBreakfast)
       formik.setFieldValue('preferLunch', selectedCustomer.preferLunch)
       formik.setFieldValue('preferDinner', selectedCustomer.preferDinner)
+      formik.setFieldValue('preferDinnerSnack', selectedCustomer.preferDinnerSnack)
+      formik.setFieldValue('preferBreakfastSnack', selectedCustomer.preferBreakfastSnack)
+      formik.setFieldValue('preferLunchSnack', selectedCustomer.preferLunchSnack)
       formik.setFieldValue('address', selectedCustomer.address)
       formik.setFieldValue('remark', selectedCustomer.remark)
     }
@@ -358,7 +361,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         const file = value.slip as File | null
         await createOrder({
           address: value.address,
-          remark: value.remark,
+          remark: value.remark || "",
           deliveryRemark: value.deliveryRemark,
           type: value.type,
           preferBreakfast: value.preferBreakfast,
