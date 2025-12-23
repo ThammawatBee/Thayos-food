@@ -88,7 +88,7 @@ const OrderPage = () => {
     contentRef: componentPrintBagRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 250px; margin: 0; }
+      @page { size: 302.362px 400px; margin: 0; }
       body { background: white; }
     }
   `,
@@ -102,7 +102,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 250px;
+      size: 302.362px 400px;
       margin: 0;
       background: white;
     }
@@ -120,7 +120,7 @@ const OrderPage = () => {
     contentRef: componentPrintBoxRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 100px; margin: 0; }
+      @page { size: 302.362px 250px; margin: 0; }
       body { background: white; }
     }`,
     onAfterPrint: () => {
@@ -133,7 +133,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 100px;
+      size: 302.362px 250px;
       margin: 0;
       background: white;
     }
@@ -458,8 +458,15 @@ const OrderPage = () => {
               }}>Print ติดถุง</Button>
               <Button background={"#BF5913"} marginLeft={"20px"} onClick={async () => {
                 const response = await listBags({ ...generateParam(search) as any, getAll: true })
-                setPrintBoxes(response.bags)
-                setTimeout(() => printBoxeslist(), 500);
+                setPrintBoxes(response.bags.filter(bag => !bag.noRemarkType))
+                setTimeout(() => {
+                  try {
+                    printBoxeslist()
+                  } catch (err) {
+                    console.log('err', err)
+                  }
+                }
+                  , 500);
               }}>Print ติดกล่อง</Button>
               <Button background={"#000000"} marginLeft={"20px"} onClick={async () => {
                 const response = await exportDailyOrders(generateParam(search) as any)

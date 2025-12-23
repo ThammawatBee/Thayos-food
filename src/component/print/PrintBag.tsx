@@ -9,7 +9,7 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
     return menus.map(menu => {
       const orderItemByType = orderItems.filter(orderItem => orderItem.type === menu.type)
       return <Box marginRight={"10px"}>
-        <Text>{menu.text} {orderItemByType.length}</Text>
+        <Text fontSize={"13px"}>{menu.text} {orderItemByType.length}</Text>
       </Box>
     })
   }
@@ -18,21 +18,21 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
     return displayMenuDays.map(day => {
       const menus = bag?.orderItems?.filter(orderItem => DateTime.fromISO(orderItem.deliveryAt).toFormat('ccc').toUpperCase() === day)
       if (menus?.length) {
-        return <Box display={'flex'} marginTop={"5px"} fontSize={"6px"}>
-          <Box minWidth={"20px"}>
-            <Text>
+        return <Box display={'flex'} marginTop={"5px"}>
+          <Box minWidth={"30px"}>
+            <Text fontSize={"13px"}>
               {day}
             </Text>
           </Box>
           <Box marginLeft={"10px"}>
             <Box display={'flex'} alignItems={'center'}>
-              <Box width={"10px"} height={"5px"} border={"1px solid"}></Box>
+              <Box width={"20px"} height={"10px"} border={"1px solid"}></Box>
               <Box display='flex' marginLeft={"20px"}>
                 {renderOrderItem([{ type: "breakfast", text: "เช้า" }, { type: "lunch", text: "กลางวัน" }, { type: "dinner", text: "เย็น" }], menus || [])}
               </Box>
             </Box>
             <Box display={'flex'} alignItems={'center'}>
-              <Box width={"10px"} height={"10px"} border={"1px solid"} borderRadius={"50%"}></Box>
+              <Box width={"20px"} height={"20px"} border={"1px solid"} borderRadius={"50%"}></Box>
               <Box display='flex' marginLeft={"20px"}>
                 {renderOrderItem([{ type: "breakfastSnack", text: "เช้า" }, { type: "lunchSnack", text: "กลางวัน" }, { type: "dinnerSnack", text: "เย็น" }], menus || [])}
               </Box>
@@ -46,18 +46,18 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
 
   return <Box padding={'6px'}>
     <Box display={'flex'} alignItems={'center'} justifyContent={'center'}>
-      <Text fontWeight={'semibold'} fontSize={'30px'} marginRight={"15px"}>{bag.order.type === "HEALTHY" ? 'H' : 'D'}</Text>
-      <QRCodeSVG value={bag.qrCode} size={45} />
+      <Text fontWeight={'semibold'} fontSize={'35px'} marginRight={"15px"}>{bag.order.type === "HEALTHY" ? 'H' : 'D'}</Text>
+      <QRCodeSVG value={bag.qrCode} size={50} />
       {bag.basket ? <Box marginLeft={'10px'}>
-        <Text fontSize={'15px'}>ตะกร้า:{bag.basket}</Text>
+        <Text fontSize={'20px'}>ตะกร้า:{bag.basket}</Text>
       </Box> : <Box />}
     </Box>
-    <Text fontSize={"6.5px"}>ส่งวันที่ {bag.deliveryAt}</Text>
-    <Text fontSize={"6.5px"}>ชื่อ {bag.order.customer.fullname}</Text>
-    <Text fontSize={"6.5px"}>ที่อยู่: {bag.address}</Text>
-    <Text fontSize={"6.5px"}>Delivery Time: {bag.order.deliveryTime} - {bag.order.deliveryTimeEnd}</Text>
-    <Text fontSize={"6.5px"}>Remark: {bag.order.remark || '-'}</Text>
-    <Text fontSize={"6.5px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
+    <Text fontSize={"13px"}>ส่งวันที่ {bag.deliveryAt}</Text>
+    <Text fontSize={"13px"}>ชื่อ {bag.order.customer.fullname}</Text>
+    <Text fontSize={"13px"}>ที่อยู่: {bag.address}</Text>
+    <Text fontSize={"13px"}>Delivery Time: {bag.order.deliveryTime} - {bag.order.deliveryTimeEnd}</Text>
+    <Text fontSize={"13px"}>Remark: {bag.order.remark || '-'}</Text>
+    <Text fontSize={"13px"}>Delivery Remark: {bag.order.deliveryRemark || '-'}</Text>
     {renderOrderMenu()}
   </Box >
 }
