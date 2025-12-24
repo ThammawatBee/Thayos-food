@@ -10,6 +10,8 @@ type BagSearch = {
   startDate?: Date
   endDate?: Date
   type?: string
+  remark?: string
+  orderType?: string
 }
 
 interface BagState {
@@ -49,6 +51,8 @@ const useBagStore = create<BagState>()(
       startDate: new Date(),
       endDate: new Date(Date.now() + (3600 * 1000 * 24)),
       type: 'ALL',
+      remark: 'ALL',
+      orderType: 'ALL',
     },
     orderItemsSummary: [],
     fetchBags: async (options?: { limit?: number, offset?: number, changePage?: boolean, reset?: boolean }) => {

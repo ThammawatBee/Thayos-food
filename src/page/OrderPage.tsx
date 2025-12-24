@@ -395,6 +395,45 @@ const OrderPage = () => {
               getOrderItemsSummary()
             }}>Search</Button>
           </Box>
+          <Box display={'flex'} marginTop='20px' alignItems='end'>
+            <Box width={'240px'}>
+              <Field.Root>
+                <Field.Label>Remark Type</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    placeholder="Select remark type"
+                    onChange={(e) => setSearch({ remark: e.currentTarget.value })}
+                    name="remark"
+                    value={search.remark}
+                  >
+                    <option value="ALL">All</option>
+                    <option value="Remark">Remark</option>
+                    <option value="NoRemark">No Remark</option>
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+            </Box>
+            <Box marginLeft={'30px'} width={'240px'}>
+              <Field.Root>
+                <Field.Label>Order Type</Field.Label>
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    placeholder="Select order type"
+                    onChange={(e) => setSearch({ orderType: e.currentTarget.value })}
+                    name="orderType"
+                    value={search.orderType}
+                  >
+                    <option value="ALL">All</option>
+                    <option value="HEALTHY">HEALTHY</option>
+                    <option value="DIET">DIET</option>
+                  </NativeSelect.Field>
+                  <NativeSelect.Indicator />
+                </NativeSelect.Root>
+              </Field.Root>
+            </Box>
+             <Box marginLeft={'20px'} width={'240px'}></Box>
+          </Box>
           <Box display='flex' marginTop='20px' >
             <Button bg='#385723' fontWeight='bold'
               onClick={async () => {
