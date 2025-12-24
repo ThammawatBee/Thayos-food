@@ -119,7 +119,7 @@ const CalendarPage = () => {
         </Box>
         <Box mt="10px" display="flex" mb="35px" justifyContent='space-between' alignItems='end'>
           <Field.Root width="30%">
-            <Field.Label>Customer ID/Name</Field.Label>
+            <Field.Label>Customer ID/Full Name</Field.Label>
             <Input
               value={search}
               onChange={(e) => {
@@ -140,7 +140,7 @@ const CalendarPage = () => {
               <Table.ColumnHeader>ชื่อลูกค้า</Table.ColumnHeader>
               <Table.ColumnHeader>ที่อยู่</Table.ColumnHeader>
               <Table.ColumnHeader>Remark</Table.ColumnHeader>
-              <Table.ColumnHeader>ชื่อเต็ม</Table.ColumnHeader>
+              <Table.ColumnHeader>ชื่อเล่น</Table.ColumnHeader>
               <Table.ColumnHeader>เบอร์ติดต่อ</Table.ColumnHeader>
               <Table.ColumnHeader>E-mail</Table.ColumnHeader>
             </Table.Row>
@@ -155,9 +155,9 @@ const CalendarPage = () => {
                   // setMode('form')
                 }}>
                   <Table.Cell>{customer.customerCode}</Table.Cell>
-                  <Table.Cell>{customer.name}</Table.Cell>
+                  <Table.Cell>{customer.fullname}</Table.Cell>
                   <Table.Cell>{customer.address}</Table.Cell>
-                  <Table.Cell>{customer.remark}</Table.Cell>
+                  <Table.Cell>{customer.name}</Table.Cell>
                   <Table.Cell>{customer.fullname}</Table.Cell>
                   <Table.Cell>{customer.mobileNumber}</Table.Cell>
                   <Table.Cell>{customer.email}</Table.Cell>

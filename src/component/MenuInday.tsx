@@ -8,11 +8,12 @@ interface MenuInDayProps {
 }
 
 const MenuInDay = ({ bagData }: MenuInDayProps) => {
-  const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[], color: string) => {
+  const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[], defaultColor: string) => {
     return menus.map(menu => {
       const orderItemByType = orderItems.filter(orderItem => orderItem.type === menu.type)
+      const successOrderItem = orderItemByType.filter(orderItem => orderItem.inBagStatus)
       return <Box marginRight={"10px"}>
-        <Text color={color}>{menu.text} {orderItemByType.length}</Text>
+        <Text color={successOrderItem.length === orderItemByType.length ? '#06B050' : defaultColor}>{menu.text} {orderItemByType.length}</Text>
       </Box>
     })
   }

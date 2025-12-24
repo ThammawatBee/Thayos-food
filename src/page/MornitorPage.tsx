@@ -54,7 +54,7 @@ const MornitorPage = () => {
           <Table.Header>
             <Table.Row background={"#F6F6F6"}>
               <Table.ColumnHeader>วันที่ตรวจสอบ</Table.ColumnHeader>
-              <Table.ColumnHeader>Order date</Table.ColumnHeader>
+              {/* <Table.ColumnHeader>Order date</Table.ColumnHeader> */}
               <Table.ColumnHeader>Customer</Table.ColumnHeader>
               <Table.ColumnHeader>Detail</Table.ColumnHeader>
               <Table.ColumnHeader>ผู้ตรวจสอบ</Table.ColumnHeader>
@@ -65,10 +65,10 @@ const MornitorPage = () => {
             logs?.length ?
               logs.slice(offset * limit, (offset + 1) * limit).map(log => <Table.Row key={log.id}>
                 <Table.Cell>{DateTime.fromISO(log.createdAt).toFormat("dd/MM/yyyy-hh:mm")}</Table.Cell>
-                <Table.Cell>{log.bag.deliveryAt ? DateTime.fromISO(log.createdAt).toFormat("dd/MM/yyyy") : ''}</Table.Cell>
-                <Table.Cell>{log.customer ? log.customer.fullname : ''}</Table.Cell>
-                <Table.Cell>{log.detail}</Table.Cell>
-                <Table.Cell>{log.user.name}</Table.Cell>
+                {/* <Table.Cell>{log?.bag?.deliveryAt ? DateTime.fromISO(log.createdAt).toFormat("dd/MM/yyyy") : ''}</Table.Cell> */}
+                <Table.Cell>{log?.customer ? log.customer.fullname : ''}</Table.Cell>
+                <Table.Cell>{log?.detail}</Table.Cell>
+                <Table.Cell>{log?.user?.name}</Table.Cell>
                 <Table.Cell>{log.status === 'success' ? <Text color={'#06B050'}>Success</Text> : <Text color={'#EF5350'}>Fail</Text>}</Table.Cell>
               </Table.Row>)
               : null}</Table.Body>

@@ -408,7 +408,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       <Text fontSize={'xl'} color={'#1A69AA'} fontWeight='bold' marginBottom={'20px'}>Select Customer</Text>
       <Box mt="10px" display="flex" mb="35px" justifyContent='space-between' alignItems='end'>
         <Field.Root width="30%">
-          <Field.Label>Customer ID/Name</Field.Label>
+          <Field.Label>Customer ID/Full Name</Field.Label>
           <Input
             value={search}
             onChange={(e) => {

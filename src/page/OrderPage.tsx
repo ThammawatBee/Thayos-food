@@ -362,7 +362,7 @@ const OrderPage = () => {
                 />
               </Field.Root>
               <Field.Root marginLeft="30px">
-                <Field.Label>Customer ID/Name</Field.Label>
+                <Field.Label>Customer ID/Full Name</Field.Label>
                 <Input
                   value={search.customer}
                   onChange={(e) => {
@@ -657,7 +657,7 @@ const OrderPage = () => {
                 />
               </Field.Root>
               <Field.Root marginLeft="30px">
-                <Field.Label>Customer ID/Name</Field.Label>
+                <Field.Label>Customer ID/Full Name</Field.Label>
                 <Input
                   value={searchOrder.customer}
                   onChange={(e) => {

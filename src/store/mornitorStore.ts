@@ -28,7 +28,7 @@ interface LogState {
 export const generateMonitorParam = (search: LogSearch) => {
   let startDate = search.startDate ? DateTime.fromJSDate(search.startDate).toFormat('yyyy-MM-dd') : ''
   let endDate = search.endDate ? DateTime.fromJSDate(search.endDate).toFormat('yyyy-MM-dd') : ''
-  return pickBy({ startDate, endDate, type: 'check_box' }, (value) => !!value)
+  return pickBy({ startDate, endDate }, (value) => !!value)
 }
 
 const useMonitorStore = create<LogState>()(
