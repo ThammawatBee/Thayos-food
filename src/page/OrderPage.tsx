@@ -497,7 +497,7 @@ const OrderPage = () => {
               }}>Print ติดถุง</Button>
               <Button background={"#BF5913"} marginLeft={"20px"} onClick={async () => {
                 const response = await listBags({ ...generateParam(search) as any, getAll: true })
-                setPrintBoxes(response.bags.filter(bag => !bag.noRemarkType))
+                setPrintBoxes(response.bags)
                 setTimeout(() => {
                   try {
                     printBoxeslist()
