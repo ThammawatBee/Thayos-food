@@ -6,6 +6,13 @@ export type OrderItem = {
   inBagStatus: boolean
 }
 
+export type DuplicateOrderItem = {
+  orderItemId: string;
+  type: string;
+  scannedAt: string;
+  scannedBy?: string;
+};
+
 export type GroupBag = {
   deliveryAt: string
   customerName: string
@@ -16,6 +23,7 @@ export type GroupBag = {
   qrCode: string
   inBasketStatus: boolean
   basket: string | null
+  duplicateOrderItems: DuplicateOrderItem[]
   order: {
     type: string
     address: string

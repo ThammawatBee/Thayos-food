@@ -10,6 +10,15 @@ export const types = [
   { text: 'ของว่างเย็น', value: 'dinnerSnack' },
 ]
 
+export const needPrintTypes = [
+  { text: 'มื้อเช้า', value: 'breakfast' },
+  { text: 'มื้อกลางวัน', value: 'lunch' },
+  { text: 'มื้อเย็น', value: 'dinner' },
+]
+
+export const printTypes = ['breakfast', 'lunch', 'dinner']
+
+
 export const renderMenu = (bag: Bag) => {
   let text = ''
   types.forEach(type => {

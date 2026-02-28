@@ -3,9 +3,9 @@ import axiosInstance from "./axios"
 import { CreateUser, EditUser, ListUserOptions, User } from "../interface/user"
 import { CreateCustomer, Customer, EditCustomer, ListCustomerOptions } from "../interface/customer"
 import { Holiday } from "../interface/holiday"
-import { ListOrderOptions, Order, OrderItem, OrderPayload, UpdateOrderPayload } from "../interface/order"
+import { ListOrderOptions, Order, OrderItem, OrderPayload, SummaryOrderItem, UpdateOrderPayload } from "../interface/order"
 import { ListPaymentOptions, Payment } from "../interface/payment"
-import { Bag, GroupBag, ListBagOptions, OrderItemSummary, UpdateBag } from "../interface/bag"
+import { Bag, GroupBag, ListBagOptions, UpdateBag } from "../interface/bag"
 import { ListLogOptions, Log } from "../interface/log"
 
 export const login = async (payload: LoginPayload) => {
@@ -107,6 +107,11 @@ export const listBags = async (options: ListBagOptions) => {
   return response as unknown as { bags: Bag[], count: number };
 }
 
+export const listGroupBags = async (options: ListBagOptions) => {
+  const response = await axiosInstance.get(`/orders/bags/group-by-qrcode`, { params: options });
+  return response as unknown as { bags: GroupBag[], count: number };
+}
+
 export const exportBags = async (options: ListBagOptions) => {
   const response = await axiosInstance.get(`/orders/bags/export`, { params: options, responseType: 'blob', });
   return response
@@ -124,7 +129,7 @@ export const exportOrderItems = async (options: ListBagOptions) => {
 
 export const getOrderItemsSummary = async (options: ListBagOptions) => {
   const response = await axiosInstance.get(`/orders/order-items/summary`, { params: options });
-  return response as unknown as OrderItemSummary[]
+  return response as unknown as SummaryOrderItem[]
 }
 
 export const updateBags = async (bags: { id: string, basket: string }[]) => {
@@ -192,5 +197,23 @@ export const exportDelivery = async (options: ListBagOptions) => {
 
 export const exportDailyOrders = async (options: ListBagOptions) => {
   const response = await axiosInstance.get(`/orders/daily/order-items`, { params: options, responseType: 'blob', });
+  return response
+}
+
+
+export const calculateDeliveryDate = async (startDate: string, endDate: string, deliveryOn: any, skipDates: string[]) => {
+  const response = await axiosInstance.post(`/orders/calculate-delivery-date`, {
+    startDate,
+    endDate,
+    deliveryOn,
+    skipDates,
+  });
+  return response as unknown as { calculateDeliveryDates: string[] };
+}
+
+export const resetBag = async (bagQrCode: string) => {
+  const response = await axiosInstance.patch(`/orders/duplicate-order-item/reset`, {
+    bagQrCode
+  });
   return response
 }

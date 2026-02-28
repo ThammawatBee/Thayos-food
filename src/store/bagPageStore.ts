@@ -1,11 +1,9 @@
 import { devtools } from "zustand/middleware";
-import { Bag, OrderItemSummary, UpdateBag } from "../interface/bag";
+import { GroupBag, OrderItemSummary, UpdateBag } from "../interface/bag";
 import { create } from "zustand";
 import pickBy from "lodash/pickBy";
 import { DateTime } from "luxon";
-import { getOrderItemsSummary, listBags, removeBag, updateBag } from "../service/thayos-food";
-import { SummaryOrderItem } from "@/interface/order";
-import { QrCode } from "@chakra-ui/react";
+import { listGroupBags, removeBag, updateBag } from "../service/thayos-food";
 
 type BagSearch = {
   customer?: string
@@ -17,7 +15,7 @@ type BagSearch = {
 }
 
 interface BagState {
-  bags: Bag[] | null
+  bags: GroupBag[] | null
   count: number
   isLoading: boolean
   error: any
@@ -31,7 +29,8 @@ interface BagState {
   updateBag: (bagId: string, payload: UpdateBag) => Promise<void>
   deleteBag: (id: string) => Promise<void>
   getOrderItemsSummary: () => Promise<void>
-  orderItemsSummary: SummaryOrderItem[]
+  orderItemsSummary: OrderItemSummary[]
+  resetDuplicateBag: (qrCode: string) => void
 }
 
 export const generateParam = (search: BagSearch) => {
@@ -40,7 +39,7 @@ export const generateParam = (search: BagSearch) => {
   return pickBy({ ...search, startDate, endDate, }, (value) => !!value)
 }
 
-const useBagStore = create<BagState>()(
+const useBagPageStore = create<BagState>()(
   devtools((set, get) => ({
     bags: null,
     count: 0,
@@ -64,7 +63,7 @@ const useBagStore = create<BagState>()(
         const offset = options?.offset || get().offset
         const currentBags = get().bags
         const search = get().search
-        const response = await listBags({
+        const response = await listGroupBags({
           limit,
           offset: options?.reset ? 0 : offset,
           ...generateParam(search) as any,
@@ -101,7 +100,7 @@ const useBagStore = create<BagState>()(
     },
     onPageSizeChange: async (pageSize: number) => {
       const { search } = get()
-      const response = await listBags({
+      const response = await listGroupBags({
         limit: pageSize,
         offset: 0,
         ...generateParam(search) as any
@@ -118,14 +117,14 @@ const useBagStore = create<BagState>()(
       await removeBag(id)
       await fetchBags({ reset: true })
     },
-    getOrderItemsSummary: async () => {
-      const { search } = get()
-      const orderItemsSummary = await getOrderItemsSummary({
-        ...generateParam(search) as any
-      })
-      set({ orderItemsSummary })
+    resetDuplicateBag: (qrcode: string) => {
+      const { bags } = get()
+      if (bags?.length) {
+        set({ bags: bags?.map(bag => bag.qrCode === qrcode ? { ...bag, duplicateOrderItems: [] } : bag) })
+      }
+      return
     }
   })
   ))
 
-export default useBagStore
+export default useBagPageStore

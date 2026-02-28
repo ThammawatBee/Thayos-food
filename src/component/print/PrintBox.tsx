@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { DateTime } from 'luxon'
 import { types } from "../../utils/renderOrderMenu";
 
-export const BoxData = ({ bag, orderItem }: { bag: Bag, orderItem: OrderItem }) => {
+export const BoxData = ({ bag, orderItem, index }: { bag: Bag, orderItem: OrderItem, index?: number }) => {
   const renderMenuText = () => {
     const type = types.find(type => type?.value === orderItem.type)
     return type?.text || ''
@@ -14,9 +14,11 @@ export const BoxData = ({ bag, orderItem }: { bag: Bag, orderItem: OrderItem }) 
       <Text fontWeight={'semibold'} fontSize={'35px'} marginRight={"15px"}>{bag.order.type === "HEALTHY" ? 'H' : 'D'}</Text>
       <QRCodeSVG value={bag.noRemarkType ? orderItem.qrcode : orderItem.id} size={50} />
     </Box>
+    <Text fontSize={"13px"}>วันที่ {DateTime.fromISO(bag.deliveryAt).toFormat('dd/MM/yyyy')}</Text>
     <Text fontSize={"13px"}>{DateTime.fromISO(bag.deliveryAt).toFormat('ccc').toUpperCase()} {renderMenuText()}</Text>
     <Text fontSize={"13px"}>ชื่อ {bag.order.customer.fullname}</Text>
     <Text fontSize={"13px"}>Remark: {bag.order.remark}</Text>
+    {index ? <Text fontSize={"13px"}>ลำดับ: {index}</Text> : null}
   </Box>
 }
 

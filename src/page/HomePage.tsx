@@ -60,6 +60,15 @@ const HomePage = () => {
           </Link>
           <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Set up Calendar</Text>
         </Box>
+        <Box marginRight={"50px"}>
+          <Link to="/bag">
+            <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"
+            >
+              <img src={Cart} style={{ width: '160xp', height: '160px' }} />
+            </Box>
+          </Link>
+          <Text textAlign='center' textStyle="lg" marginTop={'15px'}>Bag Management</Text>
+        </Box>
         {profile && profile.role === 'admin' ? <Box marginRight={"50px"}>
           <Link to="/user-management">
             <Box display="flex" alignItems='center' justifyContent='center' borderColor="black" borderWidth="1px" width={'200px'} height={'200px'} background={'white'} borderRadius="20px"

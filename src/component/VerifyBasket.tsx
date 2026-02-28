@@ -25,7 +25,12 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
       const result = await getBagQrCode(bag)
       setBagData(result.bag)
       setBasket("")
-      inputRef.current?.focus();
+      const { basket } = result.bag
+      if (basket) {
+        bagInputRef.current?.focus();
+      } else {
+        inputRef.current?.focus();
+      }
     } catch (error) {
       let message = ''
       if (error?.status === 404) {
@@ -110,6 +115,7 @@ const VerifyBasket = ({ setMode }: VerifyBasketProps) => {
       <Box textStyle="lg" marginTop={"30px"} padding={"20px"} minHeight={"200px"} borderWidth="1px">
         {
           bagData ? <Box>
+            <Box>ตะกร้า: {bagData.basket || ''}</Box>
             <Box display={'flex'}>
               <Text>สถานะ: </Text>{bagData.inBasketStatus ? <Text marginLeft={"15px"} fontWeight={'medium'} color={'#06B050'}>เสร็จสิ้น</Text> : <Text marginLeft={"15px"} fontWeight={'medium'} color={'#EF5350'}>รอดำเนินการ</Text>}
             </Box>

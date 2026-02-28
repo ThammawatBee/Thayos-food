@@ -60,6 +60,7 @@ export type OrderPayload = {
     Friday: IndividualOrder,
     Saturday: IndividualOrder,
   },
+  skipDates: string[],
 }
 
 export type Order = {
@@ -150,3 +151,11 @@ export type UpdateOrderPayload = {
     Saturday: IndividualOrder,
   },
 }
+
+export type SummaryOrderItem = {
+  date: string;
+  breakfast: string;
+  lunch: string;
+  dinner: string;
+  snack: string;
+};

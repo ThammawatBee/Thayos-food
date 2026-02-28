@@ -120,7 +120,7 @@ const OrderPage = () => {
     contentRef: componentPrintBoxRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 250px; margin: 0; }
+      @page { size: 302.362px 255px; margin: 0; }
       body { background: white; }
     }`,
     onAfterPrint: () => {
@@ -133,7 +133,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 250px;
+      size: 302.362px 255px;
       margin: 0;
       background: white;
     }
@@ -432,7 +432,7 @@ const OrderPage = () => {
                 </NativeSelect.Root>
               </Field.Root>
             </Box>
-             <Box marginLeft={'20px'} width={'240px'}></Box>
+            <Box marginLeft={'20px'} width={'240px'}></Box>
           </Box>
           <Box display='flex' marginTop='20px' >
             <Button bg='#385723' fontWeight='bold'
@@ -521,14 +521,8 @@ const OrderPage = () => {
             <Box>
               {
                 orderItemsSummary?.length ?
-                  <Box>
-                    <Box display='flex'>
-                      {renderOrderItemSummary(["breakfast", "lunch", "dinner"], orderItemsSummary)}
-                    </Box>
-                    <Box display='flex'>
-                      {renderOrderItemSummary(["breakfastSnack", "lunchSnack", "dinnerSnack"], orderItemsSummary)}
-                    </Box>
-                  </Box> : null
+                  orderItemsSummary.map(orderItemSummary =>
+                    <Box>{orderItemSummary.date} {orderItemSummary.breakfast} {orderItemSummary.lunch} {orderItemSummary.dinner} {orderItemSummary.snack}</Box>) : null
               }
             </Box>
           </Box>
@@ -645,7 +639,7 @@ const OrderPage = () => {
                           <Table.Cell>{displayMenu(orderItem.type)}</Table.Cell>
                           <Table.Cell>{bag.basket || ''}</Table.Cell>
                           <Table.Cell>
-                            {bag.noRemarkType ? <Box /> :
+                            {bag.noRemarkType || orderItem.type.includes("Snack") ? <Box /> :
                               <IconButton
                                 // disabled={!(DateTime.fromISO(bag.deliveryAt) > DateTime.local().startOf('day'))}
                                 variant="outline"

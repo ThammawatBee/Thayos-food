@@ -1,13 +1,14 @@
-import { Box, Button, ButtonGroup, Checkbox, CloseButton, Dialog, Field, IconButton, Input, NativeSelect, Pagination, Portal, Table, Text, FileUpload } from "@chakra-ui/react"
+import { Box, Button, ButtonGroup, Checkbox, CloseButton, Dialog, Field, IconButton, Input, NativeSelect, Pagination, Portal, Table, Text, FileUpload, Textarea } from "@chakra-ui/react"
 import { useFormik } from "formik"
 import * as Yup from 'yup';
 import { useEffect, useState } from "react";
-import { listCustomers } from "../service/thayos-food";
+import { calculateDeliveryDate, listCustomers } from "../service/thayos-food";
 import { Customer } from "../interface/customer";
 import PageSizeSelect from "./PageSizeSelect";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import pickBy from "lodash/pickBy";
 import DatePicker from "react-datepicker";
+import DatePickerMulti, { DateObject } from "react-multi-date-picker";
 import { generateDate, timeToMinutes } from "../utils/generateTime";
 import useOrderStore from "../store/orderStore";
 import { DateTime } from 'luxon';
@@ -57,6 +58,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const [limit, setLimit] = useState(10)
   const [offset, setOffset] = useState(0)
   const [formStep, setFromStep] = useState(0)
+  const [deliveryDates, setDeliveryDates] = useState<string[]>([])
   const [isSkipOrderAttract, setIsSkipOrderAttract] = useState(false)
   const { createOrder } = useOrderStore()
 
@@ -158,7 +160,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       Saturday: individualDaySchema,
     }),
     startDate: Yup.date().required('startDate is required.'),
-    endDate: Yup.date().required('endDate is required.'),
+    endDate: Yup.date().required('endDate is required.').min(Yup.ref("startDate"), "endDate must be later than startDate"),
     breakfastCount: Yup.number().typeError('Must be a number')
       .when(
         ['preferBreakfast', 'deliveryOrderType'],
@@ -233,7 +235,10 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
       function () {
         const deliveryOn = this.parent.deliveryOn;
         return deliveryOn && Object.values(deliveryOn).some(Boolean);
-      })
+      }),
+    skipDates: Yup.array().of(Yup.mixed()).optional(),
+    dateCount: Yup.number().typeError('Must be a number').required('Required').integer().min(1, 'จำนวนต้องมากกว่า 0')
+      .test("eq-expected", "ต้องเท่ากับจำนวนวันที่คำนวณจากระบบ", (value) => value === deliveryDates.length),
   }),
   Yup.object(Step2Validate),
   ]
@@ -342,6 +347,8 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
         Friday: emptyIndividualDay,
         Saturday: emptyIndividualDay,
       },
+      skipDates: [],
+      dateCount: 0
     },
 
     validationSchema: validateSchema[formStep],
@@ -388,18 +395,51 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           customerId: selectedCustomer?.id || '',
           deliveryOrderType: value.deliveryOrderType,
           individualDelivery: mapValues(value.individualDelivery, day => mapValues(day,
-            val => isBoolean(val) ? val : +val) as any)
+            val => isBoolean(val) ? val : +val) as any),
+          skipDates: value.skipDates.map((skipDate: DateObject) => DateTime.fromJSDate(skipDate.toDate()).toISODate() || ''),
         }, file)
 
         SuccessToast("Create order success")
         setOpenDialog(false)
         formik.resetForm()
+        setDeliveryDates([])
         setFromStep(0)
         setMode('customer')
         setSelectedCustomer(null)
       }
     },
   })
+
+  const calculateAndSetDeliveryDates = async () => {
+    if (formik.values.startDate && formik.values.endDate && Object.values(formik.values.deliveryOn).some(Boolean) && formik.values.startDate < formik.values.endDate) {
+      const startDate = formik.values.startDate ? DateTime.fromJSDate(formik.values.startDate).toISODate() : ''
+      const endDate = formik.values.endDate ? DateTime.fromJSDate(formik.values.endDate).toISODate() : ''
+      const response = await calculateDeliveryDate(
+        startDate!,
+        endDate!,
+        formik.values.deliveryOn,
+        formik.values.skipDates.map((skipDate: DateObject) => DateTime.fromJSDate(skipDate.toDate()).toISODate() || '')
+      )
+      setDeliveryDates(response.calculateDeliveryDates)
+    }
+  }
+
+  useEffect(() => {
+    if (formStep !== 0) {
+      return
+    }
+    const shouldCalculate = formik.values.startDate
+      && formik.values.endDate
+      && Object.values(formik.values.deliveryOn).some(Boolean)
+      && formik.values.startDate < formik.values.endDate
+
+    if (!shouldCalculate) {
+      setDeliveryDates([])
+      return
+    }
+
+    void calculateAndSetDeliveryDates()
+  }, [formStep, formik.values.startDate, formik.values.endDate, formik.values.deliveryOn, formik.values.skipDates])
 
 
 
@@ -865,23 +905,18 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           />
           <Field.ErrorText>{formik.errors.deliveryTimeEnd}</Field.ErrorText>
         </Field.Root>
-        <Box marginBottom={"20px"}>
+        <Box marginBottom={"20px"} display={'flex'}>
           <Field.Root invalid={(!!formik.touched.startDate && !!formik.errors.startDate) || (!!formik.touched.endDate && !!formik.errors.endDate)}>
-            <Field.Label>วันที่จัดส่ง</Field.Label>
+            <Field.Label>วันที่จัดส่งเริ่มต้น</Field.Label>
             <DatePicker
               dateFormat="dd-MM-yyyy"
               showMonthDropdown
               showYearDropdown
               isClearable
-              onChange={(dates) => {
-                const [start, end] = dates
-                formik.setFieldValue("startDate", start)
-                formik.setFieldValue("endDate", end)
+              onChange={(date) => {
+                formik.setFieldValue("startDate", date)
               }}
-
-              selectsRange={true}
-              startDate={formik.values.startDate}
-              endDate={formik.values.endDate}
+              selected={formik.values.startDate}
               onKeyDown={(e) => e.preventDefault()}
               customInput={<Input
                 width={'240px'}
@@ -889,6 +924,24 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
                 background={'white'} />}
             />
             <Field.ErrorText>{formik.errors.startDate}</Field.ErrorText>
+          </Field.Root>
+          <Field.Root invalid={(!!formik.touched.startDate && !!formik.errors.startDate) || (!!formik.touched.endDate && !!formik.errors.endDate)}>
+            <Field.Label>วันที่จัดส่งสิ้นสุด</Field.Label>
+            <DatePicker
+              dateFormat="dd-MM-yyyy"
+              showMonthDropdown
+              showYearDropdown
+              isClearable
+              onChange={(date) => {
+                formik.setFieldValue("endDate", date)
+              }}
+              selected={formik.values.endDate}
+              onKeyDown={(e) => e.preventDefault()}
+              customInput={<Input
+                width={'240px'}
+                readOnly={true}
+                background={'white'} />}
+            />
             <Field.ErrorText>{formik.errors.endDate}</Field.ErrorText>
           </Field.Root>
         </Box>
@@ -966,6 +1019,51 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
           )}
         </Box>
         {deliveryOrderSection()}
+        <Box marginTop={"20px"} marginBottom={"20px"}>
+          <Field.Root>
+            <Field.Label>skip date</Field.Label>
+            <DatePickerMulti
+              multiple
+              format="DD-MM-YYYY"
+              value={formik.values.skipDates}
+              onChange={(dates) => {
+                console.log("dates", dates)
+                formik.setFieldValue("skipDates", dates)
+              }}
+              render={<Textarea
+                width={"500px"}
+                size="xl"
+                readOnly={true}
+                background={'white'} />}
+            />
+          </Field.Root>
+        </Box>
+        <Box>
+          <Field.Root invalid={(!!formik.touched.dateCount && !!formik.errors.dateCount)}>
+            <Field.Label>จำนวนวันที่ส่ง</Field.Label>
+            <Input
+              type="number"
+              value={formik?.values?.dateCount}
+              onBlur={formik.handleBlur}
+              name="dateCount"
+              onChange={e => { formik.setFieldValue("dateCount", e.currentTarget.value) }}
+            />
+            <Field.ErrorText>{formik.errors.dateCount}</Field.ErrorText>
+          </Field.Root>
+        </Box>
+        <Button
+          marginTop={"20px"}
+          disabled={!formik.values.startDate || !formik.values.endDate || (formik.values.startDate > formik.values.endDate) || !Object.values(formik.values.deliveryOn).some(Boolean)}
+          onClick={async () => {
+            await calculateAndSetDeliveryDates()
+          }}
+        >
+          คำนวณวันที่ส่ง
+        </Button>
+        {deliveryDates.length ? <Box marginTop={"25px"}>
+          <Box>วันที่ต้องส่งจากระบบ {deliveryDates.length}</Box>
+          <Box marginTop={"20px"}>{deliveryDates.map(deliveryDate => DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')).join(", ")}</Box>
+        </Box> : null}
       </Box>
     }
     return <Box>
@@ -1117,12 +1215,14 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
             customerId: selectedCustomer?.id || '',
             deliveryOrderType: value.deliveryOrderType,
             individualDelivery: mapValues(value.individualDelivery, day => mapValues(day,
-              val => isBoolean(val) ? val : +val) as any)
+              val => isBoolean(val) ? val : +val) as any),
+            skipDates: value.skipDates.map((skipDate: DateObject) => DateTime.fromJSDate(skipDate.toDate()).toISODate() || ''),
           }, null)
 
           SuccessToast("Create order success")
           setOpenDialog(false)
           formik.resetForm()
+          setDeliveryDates([])
           setFromStep(0)
           setMode('customer')
           setSelectedCustomer(null)
@@ -1139,10 +1239,10 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
   const renderContent = () => {
     return mode === 'customer' ? CustomerContent() : FormContent()
   }
-
   return <Dialog.Root lazyMount open={isOpenDialog} size="xl"
     onExitComplete={() => {
       formik.resetForm()
+      setDeliveryDates([])
     }}>
     <Portal>
       <Dialog.Backdrop />
@@ -1169,7 +1269,15 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
                   }
                 }}>Back</Button>
             </Dialog.ActionTrigger>
-            <Button loading={formik.isSubmitting || isSkipOrderAttract} onClick={() => formik.handleSubmit()} type="submit">{formStep === 0 ? 'Save' : 'Submit'}</Button>
+            <Button
+              loading={formik.isSubmitting || isSkipOrderAttract}
+              onClick={async () => {
+                await formik.submitForm()
+              }}
+              type="button"
+            >
+              {formStep === 0 ? 'Save' : 'Submit'}
+            </Button>
           </Dialog.Footer> : null}
           <Dialog.CloseTrigger
             disabled={formik.isSubmitting || isSkipOrderAttract}
@@ -1178,6 +1286,7 @@ const OrderDialog = ({ isOpenDialog, setOpenDialog, }: OrderDialogProps) => {
               formik.resetForm()
               setMode('customer')
               setFromStep(0)
+              setDeliveryDates([])
               setSelectedCustomer(null)
             }
             }>

@@ -22,6 +22,9 @@ const AppBar = () => {
       <Link to="/order">{renderTabText('/order', 'Update Order')}</Link>
     </Box>
     <Box marginRight='20px'>
+      <Link to="/bag">{renderTabText('/bag', 'Bag Verify')}</Link>
+    </Box>
+    <Box marginRight='20px'>
       <Link to="/customer-management">{renderTabText('/customer-management', 'Customer Management')}</Link>
     </Box>
     {profile && profile.role === 'admin' ? <Box marginRight='20px'>

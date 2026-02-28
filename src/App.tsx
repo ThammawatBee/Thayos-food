@@ -13,6 +13,7 @@ import PaymentPage from "./page/PaymentPage";
 import VerifyPage from "./page/VerifyPage";
 import HistoryPage from "./page/HistoryPage";
 import MornitorPage from "./page/MornitorPage";
+import BagPage from "./page/BagPage";
 
 function App() {
   return (
@@ -34,6 +35,10 @@ function App() {
         <Route path="/order" element={
           <PrivateRoute>
             <OrderPage />
+          </PrivateRoute>} />
+        <Route path="/bag" element={
+          <PrivateRoute>
+            <BagPage />
           </PrivateRoute>} />
         <Route path="/payment" element={
           <PrivateRoute>
