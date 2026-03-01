@@ -120,7 +120,7 @@ const OrderPage = () => {
     contentRef: componentPrintBoxRef,
     pageStyle: `
     @media print {
-      @page { size: 302.362px 255px; margin: 0; }
+      @page { size: 302.362px 275px; margin: 0; }
       body { background: white; }
     }`,
     onAfterPrint: () => {
@@ -133,7 +133,7 @@ const OrderPage = () => {
     pageStyle: `
     @media print {
      @page {
-      size: 302.362px 255px;
+      size: 302.362px 275px;
       margin: 0;
       background: white;
     }

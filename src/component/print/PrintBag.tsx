@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { displayMenuDays } from "../../utils/renderOrderMenu";
 import { DateTime } from "luxon";
 
-export const BagData = ({ bag }: { bag: GroupBag }) => {
+export const BagData = ({ bag, index }: { bag: GroupBag, index?: number }) => {
   const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[]) => {
     return menus.map(menu => {
       const orderItemByType = orderItems.filter(orderItem => orderItem.type === menu.type)
@@ -59,6 +59,7 @@ export const BagData = ({ bag }: { bag: GroupBag }) => {
     <Text fontSize={"13px"}>Remark: {bag.order.remark}</Text>
     <Text fontSize={"13px"}>Delivery Remark: {bag.order.deliveryRemark}</Text>
     {renderOrderMenu()}
+    {index ? <Text fontSize={"13px"}>ลำดับ: {index}</Text> : null}
   </Box >
 }
 
