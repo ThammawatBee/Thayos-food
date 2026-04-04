@@ -23,7 +23,7 @@ const BagPage = () => {
     const renderOrderItem = (menus: { text: string, type: string }[], orderItems: OrderItem[]) => {
       return menus.map(menu => {
         const orderItemByType = orderItems.filter(orderItem => orderItem.type === menu.type)
-        const duplicateOrderItemByType = duplicateOrderItems.filter(duplicateOrderItem => duplicateOrderItem.type === menu.type)
+        const duplicateOrderItemByType = duplicateOrderItems.filter(duplicateOrderItem => duplicateOrderItem.type === menu.type && orderItemByType.filter(orderItem => orderItem.id === duplicateOrderItem.orderItemId).length)
         const successOrderItem = orderItemByType.filter(orderItem => orderItem.inBagStatus)
         return <Box marginRight={"10px"} display={'flex'}>
           <Text>{menu.text} {orderItemByType.length}</Text>
