@@ -217,3 +217,8 @@ export const resetBag = async (bagQrCode: string) => {
   });
   return response
 }
+
+export const exportCustomers = async () => {
+  const response = await axiosInstance.get(`/customers/export-all`, { responseType: 'blob', });
+  return response
+}

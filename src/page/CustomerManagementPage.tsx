@@ -9,6 +9,8 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu"
 import CustomerDialog from "../component/CustomerDialog"
 import { FaRegTrashAlt } from "react-icons/fa"
 import DeleteCustomerDialog from "../component/DeleteCustomerDialog"
+import { DateTime } from "luxon"
+import { exportCustomers } from "../service/thayos-food"
 
 const CustomerManagement = () => {
   const { customers, limit, onPageSizeChange, onPageChange, offset, count, search, setSearch, fetchCustomers } = useCustomerStore()
@@ -26,6 +28,20 @@ const CustomerManagement = () => {
     <AppBar />
     <Box paddingLeft={"15vh"} paddingRight={"15vh"} paddingTop={"10vh"} paddingBottom={"10vh"}>
       <Text marginBottom={"20px"} textStyle={'xl'} color={'#1A69AA'} fontWeight='bold'>Customer Management</Text>
+      <Button mt={"10px"} bg='#2F7F68' fontWeight="bold"
+        onClick={async () => {
+          const response = await exportCustomers()
+          const url = window.URL.createObjectURL(new Blob([response as any]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${DateTime.now().toFormat('yyyy-MM-dd-hh-mm')}-customer.xlsx`);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }}
+      >
+        Export Customer
+      </Button>
       <Box mt="10px" display="flex" mb="35px" justifyContent='space-between' alignItems='end'>
         <Field.Root width="30%">
           <Field.Label>Customer ID/Full Name</Field.Label>
